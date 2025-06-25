@@ -252,7 +252,12 @@ nav {
     overflow: hidden;
     transition: all 0.3s ease;
     border: 1px solid var(--border-color);
-}
+  
+    /* Novas propriedades para o product-card */
+    display: flex; /* Transforma em container flexível */
+    flex-direction: column; /* Organiza os itens em coluna */
+    height: 100%; /* Garante que o card ocupe toda a altura disponível na grid */
+  }
 
 .product-card:hover {
     transform: translateY(-5px);
@@ -262,15 +267,22 @@ nav {
 
 .product-image {
     width: 100%;
-    height: 300px;
+    height: 300px; /* Considere ajustar essa altura para se adequar ao design */
     object-fit: contain;
     background-color: #ffffff;
-    margin-bottom: 1rem;
-}
+    /* Remova margin-bottom se quiser que o product-info comece imediatamente após a imagem */
+    /* margin-bottom: 1rem; */
+  }
 
-.product-info {
+  .product-info {
     padding: 1.5rem;
-}
+    display: flex;
+    flex-direction: column;
+    /* Agora, o margin-top: auto vai empurrar o product-info para o final do product-card */
+    margin-top: auto;
+    flex-grow: 1; /* Permite que o product-info ocupe o espaço restante */
+    justify-content: flex-end; /* Alinha o conteúdo interno do product-info ao final */
+  }
 
 .product-category {
     color: var(--primary-color);
@@ -340,6 +352,9 @@ nav {
 
 /* Forms */
 .form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     max-width: 500px;
     margin: 3rem auto;
     background-color: var(--surface-color);

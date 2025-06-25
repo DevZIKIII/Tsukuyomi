@@ -35,9 +35,11 @@
                     <div class="product-size">Tamanho: <?php echo $product['size']; ?></div>
                     
                     <?php if($product['stock_quantity'] > 0): ?>
-                        <button onclick="addToCart(<?php echo $product['id']; ?>)" class="btn btn-primary">
-                            Adicionar ao Carrinho
-                        </button>
+                        <div class="product_add_cart">
+                            <button onclick="addToCart(<?php echo $product['id']; ?>)" class="btn btn-primary">
+                                Adicionar ao Carrinho
+                            </button>
+                        </div>
                     <?php else: ?>
                         <button class="btn btn-secondary" disabled>Esgotado</button>
                     <?php endif; ?>

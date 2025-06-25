@@ -1,7 +1,7 @@
 # .htaccess na pasta public/
+Options -Indexes
 RewriteEngine On
 
-# Remove index.php da URL
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+RewriteRule ^(.*)$ index.php?/$1 [L,QSA]

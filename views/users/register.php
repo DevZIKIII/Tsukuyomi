@@ -3,7 +3,7 @@
 <div class="form-container">
     <h2>Criar Conta</h2>
     
-    <form action="/tsukuyomi/public/index.php?action=store_user" method="POST">
+    <form action="?action=store_user" method="POST">
         <div class="form-group">
             <label for="name">Nome Completo *</label>
             <input type="text" id="name" name="name" class="form-control" required>
@@ -18,6 +18,12 @@
             <label for="password">Senha *</label>
             <input type="password" id="password" name="password" class="form-control" required>
             <small>Mínimo de 6 caracteres</small>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Confirmar Senha *</label>
+            <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+            <small>Confirme sua senha</small>
         </div>
         
         <div class="form-group">

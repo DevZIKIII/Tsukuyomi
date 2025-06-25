@@ -47,13 +47,15 @@
                         </a>
                         
                         <div class="user-menu">
-                            <span>Olá, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
-                            <a href="index.php?action=profile">Perfil</a>
-                            <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
-                                <a href="index.php?action=users">Usuários</a>
-                            <?php endif; ?>
-                            <a href="index.php?action=orders">Pedidos</a>
-                            <a href="index.php?action=logout">Sair</a>
+                            <span class="user-name">Olá, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+                                <ul>
+                                    <li><a href="index.php?action=profile">Perfil</a></li>
+                                    <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
+                                        <li><a href="index.php?action=users">Usuários</a></li>
+                                    <?php endif; ?>
+                                    <li><a href="index.php?action=orders">Pedidos</a></li>
+                                    <li><a href="index.php?action=logout">Sair</a></li>
+                                </ul>
                         </div>
                     <?php else: ?>
                         <a href="index.php?action=login" class="btn btn-secondary btn-sm">Login</a>

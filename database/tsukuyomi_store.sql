@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 25/06/2025 às 07:12
+-- Tempo de geração: 25/06/2025 às 07:19
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -127,7 +127,7 @@ INSERT INTO `products` (`id`, `name`, `description`, `price`, `category`, `size`
 (8, 'Camiseta Death Note', 'Camiseta preta com design do protagonista do Death Note. Premium quality.', 89.90, 'Camisetas', 'G', 45, 'death_note_tee.jpg', '2025-06-24 17:16:50', '2025-06-25 05:10:39'),
 (9, 'Jaqueta Evangelion', 'Jaqueta varsity roxa e verde inspirada no EVA-01. Coleção exclusiva.', 299.90, 'Jaquetas', 'M', 10, 'evangelion_jacket.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
 (10, 'Shorts Dragon Ball', 'Shorts laranja inspirado no uniforme de treino do Goku. Perfeito para academia.', 119.90, 'Shorts', 'G', 30, 'dbz_shorts.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(11, 'Camiseta Hunter x Hunter', 'Camiseta preta com estampa de personagem. Design discreto e elegante.', 84.90, 'Camisetas', 'GG', 40, 'hxh_nen_tee.jpg', '2025-06-24 17:16:50', '2025-06-25 05:11:13'),
+(11, 'Camiseta Hunter x Hunter', 'Camiseta cinza com estampa de personagem. Design discreto e elegante.', 84.90, 'Camisetas', 'GG', 40, 'hxh_nen_tee.jpg', '2025-06-24 17:16:50', '2025-06-25 05:19:54'),
 (12, 'Moletom My Hero Academia', 'Moletom azul e branco da U.A. High School. Licenciado oficial.', 199.90, 'Moletons', 'P', 20, 'mha_ua_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-25 05:02:30'),
 (13, 'Calça Jogger Chainsaw Man', 'Calça jogger preta com estampa do Pochita. Streetwear premium.', 169.90, 'Calças', '40', 25, 'chainsaw_jogger.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
 (14, 'Camiseta Spy x Family', 'Camiseta rosa com a Anya. Design fofo e moderno.', 79.90, 'Camisetas', 'M', 50, 'spy_family_anya.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),

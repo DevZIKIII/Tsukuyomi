@@ -1,0 +1,9 @@
+# .htaccess na pasta raiz do projeto (tsukuyomi/)
+RewriteEngine On
+
+# Redireciona tudo para public/index.php
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ /tsukuyomi/public/index.php [L]
+
+# Previne acesso direto às pastas
+RedirectMatch 403 ^/tsukuyomi/(config|controllers|models|views|database)/.*$

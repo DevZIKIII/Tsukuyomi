@@ -18,10 +18,10 @@
             <div class="product-card fade-in">
                 <a href="/tsukuyomi/public/index.php?action=product&id=<?php echo $product['id']; ?>">
                     <!-- Imagem aqui - <?php echo $product['name']; ?> -->
-                    <img src="/tsukuyomi/public/images/products/<?php echo $product['image_url']; ?>" 
-                         alt="<?php echo $product['name']; ?>" 
-                         class="product-image"
-                         onerror="this.src='/tsukuyomi/public/images/placeholder.jpg'">
+                    <img src="<?php echo BASE_URL; ?>images/products/<?php echo $product['image_url']; ?>"
+                        alt="<?php echo $product['name']; ?>"
+                        class="product-image"
+                        onerror="this.src='<?php echo BASE_URL; ?>images/placeholder.jpg'">
                 </a>
                 
                 <div class="product-info">

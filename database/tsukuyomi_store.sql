@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 24/06/2025 às 19:33
+-- Tempo de geração: 25/06/2025 às 07:12
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -119,19 +119,19 @@ CREATE TABLE `products` (
 INSERT INTO `products` (`id`, `name`, `description`, `price`, `category`, `size`, `stock_quantity`, `image_url`, `created_at`, `updated_at`) VALUES
 (1, 'Camiseta Naruto - Akatsuki', 'Camiseta preta com estampa da Akatsuki em vermelho. 100% algodão, estampa em silk screen de alta qualidade.', 89.90, 'Camisetas', 'M', 50, 'naruto_akatsuki.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
 (2, 'Moletom Tokyo Ghoul', 'Moletom com capuz preto, estampa do Ken Kaneki. Material: 70% algodão, 30% poliéster.', 159.90, 'Moletons', 'G', 30, 'tokyo_ghoul_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(3, 'Camiseta Attack on Titan - Survey Corps', 'Camiseta verde com emblema da Tropa de Exploração. Design minimalista streetwear.', 79.90, 'Camisetas', 'M', 40, 'aot_survey_corps.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
+(3, 'Camiseta Attack on Titan - Survey Corps', 'Camiseta preta com emblema da Tropa de Exploração. Design minimalista streetwear.', 79.90, 'Camisetas', 'M', 40, 'aot_survey_corps.jpg', '2025-06-24 17:16:50', '2025-06-25 05:08:05'),
 (4, 'Jaqueta Demon Slayer', 'Jaqueta bomber inspirada no uniforme do Tanjiro. Detalhes em verde e preto.', 249.90, 'Jaquetas', 'GG', 20, 'demon_slayer_jacket.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(5, 'Camiseta One Piece - Mugiwara', 'Camiseta branca com símbolo dos Chapéus de Palha. Edição limitada.', 99.90, 'Camisetas', 'P', 35, 'onepiece_mugiwara.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(6, 'Moletom Jujutsu Kaisen', 'Moletom cinza com estampa do Gojo Satoru. Super confortável para o dia a dia.', 179.90, 'Moletons', 'M', 25, 'jjk_gojo_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
+(5, 'Camiseta One Piece - Mugiwara', 'Camiseta preta com rostos dos Chapéu de Palha. Edição limitada.', 99.90, 'Camisetas', 'P', 35, 'onepiece_mugiwara.jpg', '2025-06-24 17:16:50', '2025-06-25 05:09:47'),
+(6, 'Moletom Jujutsu Kaisen', 'Moletom preto com estampa do Gojo Satoru. Super confortável para o dia a dia.', 179.90, 'Moletons', 'M', 25, 'jjk_gojo_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-25 05:09:59'),
 (7, 'Calça Cargo Cyberpunk', 'Calça cargo preta com detalhes em neon. Inspirada em Cyberpunk Edgerunners.', 189.90, 'Calças', '42', 15, 'cyberpunk_cargo.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(8, 'Camiseta Death Note', 'Camiseta preta com design minimalista do Death Note. Premium quality.', 89.90, 'Camisetas', 'G', 45, 'death_note_tee.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
+(8, 'Camiseta Death Note', 'Camiseta preta com design do protagonista do Death Note. Premium quality.', 89.90, 'Camisetas', 'G', 45, 'death_note_tee.jpg', '2025-06-24 17:16:50', '2025-06-25 05:10:39'),
 (9, 'Jaqueta Evangelion', 'Jaqueta varsity roxa e verde inspirada no EVA-01. Coleção exclusiva.', 299.90, 'Jaquetas', 'M', 10, 'evangelion_jacket.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
 (10, 'Shorts Dragon Ball', 'Shorts laranja inspirado no uniforme de treino do Goku. Perfeito para academia.', 119.90, 'Shorts', 'G', 30, 'dbz_shorts.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(11, 'Camiseta Hunter x Hunter', 'Camiseta preta com símbolos Nen. Design discreto e elegante.', 84.90, 'Camisetas', 'GG', 40, 'hxh_nen_tee.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(12, 'Moletom My Hero Academia', 'Moletom vermelho e branco da U.A. High School. Licenciado oficial.', 199.90, 'Moletons', 'P', 20, 'mha_ua_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
+(11, 'Camiseta Hunter x Hunter', 'Camiseta preta com estampa de personagem. Design discreto e elegante.', 84.90, 'Camisetas', 'GG', 40, 'hxh_nen_tee.jpg', '2025-06-24 17:16:50', '2025-06-25 05:11:13'),
+(12, 'Moletom My Hero Academia', 'Moletom azul e branco da U.A. High School. Licenciado oficial.', 199.90, 'Moletons', 'P', 20, 'mha_ua_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-25 05:02:30'),
 (13, 'Calça Jogger Chainsaw Man', 'Calça jogger preta com estampa do Pochita. Streetwear premium.', 169.90, 'Calças', '40', 25, 'chainsaw_jogger.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
 (14, 'Camiseta Spy x Family', 'Camiseta rosa com a Anya. Design fofo e moderno.', 79.90, 'Camisetas', 'M', 50, 'spy_family_anya.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(15, 'Jaqueta Corta-Vento Pokémon', 'Jaqueta leve com estampa de Pokébolas. Ideal para dias frescos.', 139.90, 'Jaquetas', 'G', 35, 'pokemon_windbreaker.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50');
+(15, 'Jaqueta Corta-Vento Pokémon', 'Jaqueta leve com estampa de uniforme de treinador. Ideal para dias frescos.', 139.90, 'Jaquetas', 'G', 35, 'pokemon_windbreaker.jpg', '2025-06-24 17:16:50', '2025-06-25 05:11:46');
 
 -- --------------------------------------------------------
 

@@ -8,10 +8,10 @@
             <?php foreach($cart_items as $item): ?>
                 <div class="cart-item">
                     <!-- Imagem aqui - <?php echo $item['name']; ?> -->
-                    <img src="/tsukuyomi/public/images/products/<?php echo $item['image_url']; ?>" 
-                         alt="<?php echo $item['name']; ?>" 
-                         class="cart-item-image"
-                         onerror="this.src='/tsukuyomi/public/images/placeholder.jpg'">
+                    <img src="<?php echo BASE_URL; ?>images/products/<?php echo $item['image_url']; ?>"
+                        alt="<?php echo $item['name']; ?>"
+                        class="cart-item-image"
+                        onerror="this.src='<?php echo BASE_URL; ?>images/placeholder.jpg'">
                     
                     <div class="cart-item-info">
                         <h3><?php echo htmlspecialchars($item['name']); ?></h3>

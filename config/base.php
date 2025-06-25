@@ -1,6 +1,6 @@
 <?php
 // Define a URL base do projeto
-define('PROJECT_NAME', 'tsukuyomi'); // Mude aqui se mudar o nome da pasta
+define('PROJECT_NAME', 'Tsukuyomi'); // Mude aqui se mudar o nome da pasta
 // define('BASE_URL', '/' . PROJECT_NAME . '/public/');
 define('FULL_URL', 'http://' . $_SERVER['HTTP_HOST'] . BASE_URL);
 

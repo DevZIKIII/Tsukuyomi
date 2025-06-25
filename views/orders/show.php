@@ -46,10 +46,10 @@
         
         <?php foreach($order_items as $item): ?>
             <div class="order-item">
-                <img src="/tsukuyomi/public/images/products/<?php echo $item['image_url']; ?>" 
-                     alt="<?php echo $item['name']; ?>" 
-                     class="order-item-image"
-                     onerror="this.src='/tsukuyomi/public/images/placeholder.jpg'">
+                <img src="<?php echo BASE_URL; ?>images/products/<?php echo $item['image_url']; ?>"
+                    alt="<?php echo $item['name']; ?>"
+                    class="order-item-image"
+                    onerror="this.src='<?php echo BASE_URL; ?>images/placeholder.jpg'">
                 
                 <div class="order-item-info">
                     <h4><?php echo $item['name']; ?></h4>

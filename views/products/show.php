@@ -4,9 +4,9 @@
     <div class="product-detail-container">
         <div class="product-detail-image">
             <!-- Imagem aqui - <?php echo $this->product->name; ?> -->
-            <img src="/tsukuyomi/public/images/products/<?php echo $this->product->image_url; ?>" 
-                 alt="<?php echo $this->product->name; ?>"
-                 onerror="this.src='/tsukuyomi/public/images/placeholder.jpg'">
+            <img src="<?php echo BASE_URL; ?>images/products/<?php echo $this->product->image_url; ?>"
+                alt="<?php echo $this->product->name; ?>"
+                onerror="this.src='<?php echo BASE_URL; ?>images/placeholder.jpg'">
         </div>
         
         <div class="product-detail-info">

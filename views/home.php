@@ -6,7 +6,7 @@
     <title>Tsukuyomi - Streetwear Geek</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../public/css/style.css">
     
     <!-- Fonte Google -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

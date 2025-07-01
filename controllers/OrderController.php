@@ -1,5 +1,4 @@
 ﻿<?php
-//session_start();
 require_once '../config/database.php';
 require_once '../models/Order.php';
 require_once '../models/Cart.php';
@@ -17,7 +16,7 @@ class OrderController {
     // Create order
     public function create() {
         if(!isset($_SESSION['user_id'])) {
-            header('Location: /tsukuyomi/public/index.php?action=login');
+            header('Location: index.php?action=login');
             exit();
         }
         
@@ -28,6 +27,16 @@ class OrderController {
             $total = $cart->getCartTotal();
             
             if($total > 0) {
+                // Aplicar desconto do cupom se houver
+                $discount = 0;
+                $coupon_id = null;
+                
+                if(isset($_SESSION['coupon']) && $_SESSION['coupon']['valid']) {
+                    $discount = $_SESSION['coupon']['discount_amount'];
+                    $coupon_id = $_SESSION['coupon']['coupon_id'];
+                    $total = $total - $discount;
+                }
+                
                 $this->order->user_id = $_SESSION['user_id'];
                 $this->order->total_amount = $total;
                 $this->order->status = 'pending';
@@ -35,15 +44,29 @@ class OrderController {
                 $this->order->shipping_address = $_POST['shipping_address'];
                 
                 if($this->order->create()) {
+                    // Se usou cupom, incrementar o contador de uso
+                    if($coupon_id) {
+                        require_once '../models/Coupon.php';
+                        $coupon = new Coupon($this->db);
+                        $coupon->incrementUsage($coupon_id);
+                        unset($_SESSION['coupon']);
+                    }
+                    
+                    // Limpar contagem do carrinho
+                    $_SESSION['cart_count'] = 0;
+                    
                     $_SESSION['message'] = "Pedido realizado com sucesso! Número do pedido: " . $this->order->id;
-                    header('Location: /tsukuyomi/public/index.php?action=order_success&id=' . $this->order->id);
+                    header('Location: index.php?action=order&id=' . $this->order->id);
+                    exit();
                 } else {
                     $_SESSION['error'] = "Erro ao processar pedido.";
-                    header('Location: /tsukuyomi/public/index.php?action=cart');
+                    header('Location: index.php?action=cart');
+                    exit();
                 }
             } else {
                 $_SESSION['error'] = "Carrinho vazio.";
-                header('Location: /tsukuyomi/public/index.php?action=cart');
+                header('Location: index.php?action=cart');
+                exit();
             }
         }
     }
@@ -51,7 +74,7 @@ class OrderController {
     // Show user orders
     public function index() {
         if(!isset($_SESSION['user_id'])) {
-            header('Location: /tsukuyomi/public/index.php?action=login');
+            header('Location: index.php?action=login');
             exit();
         }
         
@@ -65,7 +88,7 @@ class OrderController {
     // Show order details
     public function show($id) {
         if(!isset($_SESSION['user_id'])) {
-            header('Location: /tsukuyomi/public/index.php?action=login');
+            header('Location: index.php?action=login');
             exit();
         }
         
@@ -73,8 +96,8 @@ class OrderController {
         $order = $this->order->getOrderDetails();
         
         // Check if order belongs to user or user is admin
-        if($order['user_id'] != $_SESSION['user_id'] && $_SESSION['user_type'] != 'admin') {
-            header('Location: /tsukuyomi/public/index.php');
+        if(!$order || ($order['user_id'] != $_SESSION['user_id'] && $_SESSION['user_type'] != 'admin')) {
+            header('Location: index.php');
             exit();
         }
         
@@ -87,7 +110,7 @@ class OrderController {
     // Update order status (admin only)
     public function updateStatus() {
         if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] != 'admin') {
-            header('Location: /tsukuyomi/public/index.php');
+            header('Location: index.php');
             exit();
         }
         
@@ -101,8 +124,22 @@ class OrderController {
                 $_SESSION['error'] = "Erro ao atualizar status.";
             }
             
-            header('Location: /tsukuyomi/public/index.php?action=order&id=' . $this->order->id);
+            header('Location: index.php?action=order&id=' . $this->order->id);
+            exit();
         }
+    }
+    
+    // List all orders (admin)
+    public function allOrders() {
+        if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] != 'admin') {
+            header('Location: index.php');
+            exit();
+        }
+        
+        $stmt = $this->order->getAllOrders();
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        include '../views/admin/orders/index.php';
     }
 }
 ?>

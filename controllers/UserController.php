@@ -11,16 +11,88 @@ class UserController {
         $database = new Database();
         $this->db = $database->getConnection();
         $this->user = new User($this->db);
+        // Edit user form (admin)
+    }
+    public function edit($id) {
+        if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
+            redirectTo();
+        }
+        
+        $query = "SELECT * FROM users WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(1, $id);
+        $stmt->execute();
+        
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if(!$user) {
+            $_SESSION['error'] = "Usuário não encontrado.";
+            redirectTo('users');
+        }
+        
+        include '../views/users/edit.php';
+    }
+    
+    // Update user (admin)
+    public function updateUser($id) {
+        if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
+            redirectTo();
+        }
+        
+        if($_POST) {
+            $query = "UPDATE users SET 
+                     name = :name,
+                     email = :email,
+                     phone = :phone,
+                     address = :address,
+                     city = :city,
+                     state = :state,
+                     zip_code = :zip_code,
+                     user_type = :user_type";
+            
+            // Se uma nova senha foi fornecida
+            if(!empty($_POST['new_password'])) {
+                $query .= ", password = :password";
+            }
+            
+            $query .= " WHERE id = :id";
+            
+            $stmt = $this->db->prepare($query);
+            
+            // Bind parameters
+            $stmt->bindParam(':name', $_POST['name']);
+            $stmt->bindParam(':email', $_POST['email']);
+            $stmt->bindParam(':phone', $_POST['phone']);
+            $stmt->bindParam(':address', $_POST['address']);
+            $stmt->bindParam(':city', $_POST['city']);
+            $stmt->bindParam(':state', $_POST['state']);
+            $stmt->bindParam(':zip_code', $_POST['zip_code']);
+            $stmt->bindParam(':user_type', $_POST['user_type']);
+            $stmt->bindParam(':id', $id);
+            
+            if(!empty($_POST['new_password'])) {
+                $password_hash = password_hash($_POST['new_password'], PASSWORD_BCRYPT);
+                $stmt->bindParam(':password', $password_hash);
+            }
+            
+            if($stmt->execute()) {
+                $_SESSION['message'] = "Usuário atualizado com sucesso!";
+            } else {
+                $_SESSION['error'] = "Erro ao atualizar usuário.";
+            }
+            
+            redirectTo('users');
+        }
     }
     
     // Show login form
     public function login() {
-        include '../views/users/login.php';
+        include '../views/auth/login.php';
     }
     
     // Show register form
     public function register() {
-        include '../views/users/register.php';
+        include '../views/auth/register.php';
     }
     
     // Authenticate user
@@ -62,7 +134,7 @@ class UserController {
             $this->user->zip_code = $_POST['zip_code'];
             $this->user->user_type = 'customer';
             
-            // Check if email already exists
+            // // Check if email already exists
             // if($this->user->emailExists()) {
             //     $_SESSION['error'] = "Este email já está cadastrado.";
             //     redirectTo('register');

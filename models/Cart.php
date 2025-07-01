@@ -1,7 +1,7 @@
 ﻿<?php
 class Cart {
     private $conn;
-    private $table_name = "cart";
+    private $table_name = "cart_items";
     
     public $id;
     public $user_id;
@@ -124,6 +124,19 @@ class Cart {
     // Get cart count
     public function getCartCount() {
         $query = "SELECT SUM(quantity) as count FROM " . $this->table_name . " 
+                WHERE user_id = :user_id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':user_id', $this->user_id);
+        $stmt->execute();
+        
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['count'] ? $row['count'] : 0;
+    }
+    
+    // Get cart items count (número de itens diferentes, não quantidade total)
+    public function getCartItemsCount() {
+        $query = "SELECT COUNT(*) as count FROM " . $this->table_name . " 
                 WHERE user_id = :user_id";
         
         $stmt = $this->conn->prepare($query);

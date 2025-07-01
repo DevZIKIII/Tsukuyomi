@@ -17,7 +17,7 @@
         <button type="submit" class="btn btn-primary">Entrar</button>
         
         <p style="margin-top: 1rem; text-align: center;">
-            Não tem uma conta? <a href="?action=register">Cadastre-se</a>
+            Não tem uma conta? <a href="/tsukuyomi/public/index.php?action=register">Cadastre-se</a>
         </p>
     </form>
 </div>

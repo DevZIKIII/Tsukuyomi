@@ -6,7 +6,7 @@
     <title>Tsukuyomi - Streetwear Geek</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>css/style.css">
+    <link rel="stylesheet" href="css/style.css">
     
     <!-- Fonte Google -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,8 +22,8 @@
                 <ul class="nav-links">
                     <li><a href="index.php">Home</a></li>
                     <li><a href="index.php?action=products">Produtos</a></li>
-                    <li><a href="#about">Sobre</a></li>
-                    <li><a href="#contact">Contato</a></li>
+                    <!-- <li><a href="#about">Sobre</a></li>
+                    <li><a href="#contact">Contato</a></li> -->
                 </ul>
                 
                 <div class="nav-actions">
@@ -33,12 +33,17 @@
                     </form>
                     
                     <?php if(isset($_SESSION['user_id'])): ?>
+                        <?php 
+                        // Definir cart_count na sessão para evitar múltiplas consultas
+                        if (!isset($_SESSION['cart_count'])) {
+                            $_SESSION['cart_count'] = 0;
+                        }
+                        ?>
                         <a href="index.php?action=cart" class="btn btn-secondary btn-sm">
                             Carrinho
-                            <?php
-                            // Contador do carrinho será implementado de forma mais simples
-                            // Evitando problemas de inclusão de arquivos
-                            ?>
+                            <?php if($_SESSION['cart_count'] > 0): ?>
+                                <span class="cart-badge"><?php echo $_SESSION['cart_count']; ?></span>
+                            <?php endif; ?>
                         </a>
                         
                         <div class="user-menu">

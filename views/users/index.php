@@ -31,6 +31,11 @@
                     <td>
                         <a href="/tsukuyomi/public/index.php?action=edit_user&id=<?php echo $user['id']; ?>" 
                            class="btn btn-sm btn-secondary">Editar</a>
+                        <?php if($user['id'] != $_SESSION['user_id']): ?>
+                            <a href="/tsukuyomi/public/index.php?action=delete_user&id=<?php echo $user['id']; ?>" 
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Tem certeza que deseja excluir este usuário?')">Excluir</a>
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>

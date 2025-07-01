@@ -14,17 +14,18 @@ class User {
     public $zip_code;
     public $user_type;
     public $created_at;
+    public $updated_at;
     
     public function __construct($db) {
         $this->conn = $db;
     }
     
-    // CREATE
+    // Create user
     public function create() {
         $query = "INSERT INTO " . $this->table_name . "
-                 SET name=:name, email=:email, password=:password, 
-                     phone=:phone, address=:address, city=:city, 
-                     state=:state, zip_code=:zip_code, user_type=:user_type";
+                SET name=:name, email=:email, password=:password,
+                    phone=:phone, address=:address, city=:city,
+                    state=:state, zip_code=:zip_code, user_type=:user_type";
         
         $stmt = $this->conn->prepare($query);
         
@@ -39,12 +40,12 @@ class User {
         $this->user_type = htmlspecialchars(strip_tags($this->user_type));
         
         // Hash password
-        $this->password = password_hash($this->password, PASSWORD_DEFAULT);
+        $password_hash = password_hash($this->password, PASSWORD_BCRYPT);
         
         // Bind values
         $stmt->bindParam(":name", $this->name);
         $stmt->bindParam(":email", $this->email);
-        $stmt->bindParam(":password", $this->password);
+        $stmt->bindParam(":password", $password_hash);
         $stmt->bindParam(":phone", $this->phone);
         $stmt->bindParam(":address", $this->address);
         $stmt->bindParam(":city", $this->city);
@@ -58,12 +59,13 @@ class User {
         return false;
     }
     
-    // LOGIN
+    // Login user
     public function login() {
         $query = "SELECT id, name, email, password, user_type FROM " . $this->table_name . " 
-                 WHERE email = :email LIMIT 0,1";
+                WHERE email = :email LIMIT 0,1";
         
         $stmt = $this->conn->prepare($query);
+        $this->email = htmlspecialchars(strip_tags($this->email));
         $stmt->bindParam(':email', $this->email);
         $stmt->execute();
         
@@ -75,24 +77,14 @@ class User {
             $this->user_type = $row['user_type'];
             return true;
         }
+        
         return false;
     }
     
-    // READ all
-    public function read() {
-        $query = "SELECT id, name, email, phone, address, city, state, 
-                        zip_code, user_type, created_at 
-                 FROM " . $this->table_name . " 
-                 ORDER BY created_at DESC";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        return $stmt;
-    }
-    
-    // READ one
+    // Read single user
     public function readOne() {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = ? LIMIT 0,1";
+        
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(1, $this->id);
         $stmt->execute();
@@ -109,20 +101,21 @@ class User {
             $this->zip_code = $row['zip_code'];
             $this->user_type = $row['user_type'];
             $this->created_at = $row['created_at'];
+            $this->updated_at = $row['updated_at'];
         }
     }
     
-    // UPDATE
+    // Update user
     public function update() {
         $query = "UPDATE " . $this->table_name . "
-                 SET name = :name,
-                     email = :email,
-                     phone = :phone,
-                     address = :address,
-                     city = :city,
-                     state = :state,
-                     zip_code = :zip_code
-                 WHERE id = :id";
+                SET name = :name,
+                    email = :email,
+                    phone = :phone,
+                    address = :address,
+                    city = :city,
+                    state = :state,
+                    zip_code = :zip_code
+                WHERE id = :id";
         
         $stmt = $this->conn->prepare($query);
         
@@ -152,15 +145,26 @@ class User {
         return false;
     }
     
-    // DELETE
-    public function delete() {
-        $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
+    // Read all users
+    public function read() {
+        $query = "SELECT id, name, email, phone, city, state, user_type, created_at 
+                FROM " . $this->table_name . " ORDER BY created_at DESC";
+        
         $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt;
+    }
+    
+    // Check if email exists
+    public function emailExists() {
+        $query = "SELECT id FROM " . $this->table_name . " WHERE email = ? LIMIT 0,1";
         
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $stmt->bindParam(1, $this->id);
+        $stmt = $this->conn->prepare($query);
+        $this->email = htmlspecialchars(strip_tags($this->email));
+        $stmt->bindParam(1, $this->email);
+        $stmt->execute();
         
-        if($stmt->execute()) {
+        if($stmt->rowCount() > 0) {
             return true;
         }
         return false;

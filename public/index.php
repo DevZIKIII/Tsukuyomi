@@ -9,6 +9,7 @@ require_once '../controllers/ProductController.php';
 require_once '../controllers/UserController.php';
 require_once '../controllers/CartController.php';
 require_once '../controllers/OrderController.php';
+require_once '../controllers/CouponController.php';
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'home';
 $id = isset($_GET['id']) ? $_GET['id'] : null;
@@ -153,5 +154,57 @@ switch($action) {
         $controller = new ProductController();
         $controller->index();
         break;
+    
+    // Coupon routes
+    case 'coupons':
+        $controller = new CouponController();
+        $controller->index();
+        break;
+    
+    case 'create_coupon':
+        $controller = new CouponController();
+        $controller->create();
+        break;
+    
+    case 'store_coupon':
+        $controller = new CouponController();
+        $controller->store();
+        break;
+    
+    case 'toggle_coupon':
+        $controller = new CouponController();
+        $controller->toggleStatus($id);
+        break;
+    
+    case 'delete_coupon':
+        $controller = new CouponController();
+        $controller->delete($id);
+        break;
+    
+    case 'validate_coupon':
+        $controller = new CouponController();
+        $controller->validate();
+        break;
+    
+    case 'remove_coupon':
+        $controller = new CouponController();
+        $controller->remove();
+        break;
+
+// User edit route (admin)
+    case 'edit_user':
+        $controller = new UserController();
+        $controller->edit($id);
+        break;
+    
+    case 'update_user':
+        $controller = new UserController();
+        $controller->updateUser($id);
+        break;
+
+    case 'all_orders':
+        $controller = new OrderController();
+        $controller->allOrders();
+        break;    
 }
 ?>

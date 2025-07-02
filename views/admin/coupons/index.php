@@ -78,7 +78,7 @@
     </div>
 </div>
 
-<style>
+<!-- <style>
 .admin-container {
     max-width: 1200px;
     margin: 2rem auto;
@@ -100,7 +100,7 @@
     background-color: #ef4444;
     color: white;
 }
-</style>
+</style> -->
 
 <?php include '../views/layout/footer.php'; ?>
 

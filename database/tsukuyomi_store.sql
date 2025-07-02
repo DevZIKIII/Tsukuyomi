@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 25/06/2025 às 07:19
+-- Tempo de geração: 02/07/2025 às 04:23
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -42,7 +42,41 @@ CREATE TABLE `cart_items` (
 INSERT INTO `cart_items` (`id`, `user_id`, `product_id`, `quantity`, `created_at`) VALUES
 (1, 2, 1, 2, '2025-06-24 17:16:50'),
 (2, 2, 5, 1, '2025-06-24 17:16:50'),
-(3, 3, 3, 1, '2025-06-24 17:16:50');
+(3, 3, 3, 1, '2025-06-24 17:16:50'),
+(4, 5, 10, 1, '2025-07-01 02:29:30'),
+(5, 5, 2, 1, '2025-07-01 02:38:24');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `coupons`
+--
+
+CREATE TABLE `coupons` (
+  `id` int(11) NOT NULL,
+  `code` varchar(50) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `discount_type` enum('percentage','fixed') NOT NULL,
+  `discount_value` decimal(10,2) NOT NULL,
+  `min_order_value` decimal(10,2) DEFAULT 0.00,
+  `max_discount` decimal(10,2) DEFAULT NULL,
+  `usage_limit` int(11) DEFAULT NULL,
+  `used_count` int(11) DEFAULT 0,
+  `valid_from` date NOT NULL,
+  `valid_until` date NOT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `coupons`
+--
+
+INSERT INTO `coupons` (`id`, `code`, `description`, `discount_type`, `discount_value`, `min_order_value`, `max_discount`, `usage_limit`, `used_count`, `valid_from`, `valid_until`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'BEMVINDO10', 'Desconto de boas-vindas - 10% OFF', 'percentage', 10.00, 50.00, NULL, NULL, 0, '2025-07-01', '2025-07-31', 1, '2025-07-01 19:49:40', '2025-07-01 19:49:40'),
+(2, 'FRETE20', 'R$ 20 de desconto no frete', 'fixed', 20.00, 100.00, NULL, NULL, 0, '2025-07-01', '2025-08-30', 1, '2025-07-01 19:49:40', '2025-07-01 19:49:40'),
+(3, 'ANIME15', '15% OFF em produtos de anime', 'percentage', 15.00, 0.00, NULL, NULL, 0, '2025-07-01', '2025-09-29', 1, '2025-07-01 19:49:40', '2025-07-01 19:49:40');
 
 -- --------------------------------------------------------
 
@@ -119,19 +153,19 @@ CREATE TABLE `products` (
 INSERT INTO `products` (`id`, `name`, `description`, `price`, `category`, `size`, `stock_quantity`, `image_url`, `created_at`, `updated_at`) VALUES
 (1, 'Camiseta Naruto - Akatsuki', 'Camiseta preta com estampa da Akatsuki em vermelho. 100% algodão, estampa em silk screen de alta qualidade.', 89.90, 'Camisetas', 'M', 50, 'naruto_akatsuki.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
 (2, 'Moletom Tokyo Ghoul', 'Moletom com capuz preto, estampa do Ken Kaneki. Material: 70% algodão, 30% poliéster.', 159.90, 'Moletons', 'G', 30, 'tokyo_ghoul_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(3, 'Camiseta Attack on Titan - Survey Corps', 'Camiseta preta com emblema da Tropa de Exploração. Design minimalista streetwear.', 79.90, 'Camisetas', 'M', 40, 'aot_survey_corps.jpg', '2025-06-24 17:16:50', '2025-06-25 05:08:05'),
+(3, 'Camiseta Attack on Titan - Survey Corps', 'Camiseta verde com emblema da Tropa de Exploração. Design minimalista streetwear.', 79.90, 'Camisetas', 'M', 40, 'aot_survey_corps.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
 (4, 'Jaqueta Demon Slayer', 'Jaqueta bomber inspirada no uniforme do Tanjiro. Detalhes em verde e preto.', 249.90, 'Jaquetas', 'GG', 20, 'demon_slayer_jacket.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(5, 'Camiseta One Piece - Mugiwara', 'Camiseta preta com rostos dos Chapéu de Palha. Edição limitada.', 99.90, 'Camisetas', 'P', 35, 'onepiece_mugiwara.jpg', '2025-06-24 17:16:50', '2025-06-25 05:09:47'),
-(6, 'Moletom Jujutsu Kaisen', 'Moletom preto com estampa do Gojo Satoru. Super confortável para o dia a dia.', 179.90, 'Moletons', 'M', 25, 'jjk_gojo_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-25 05:09:59'),
+(5, 'Camiseta One Piece - Mugiwara', 'Camiseta branca com símbolo dos Chapéus de Palha. Edição limitada.', 99.90, 'Camisetas', 'P', 35, 'onepiece_mugiwara.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
+(6, 'Moletom Jujutsu Kaisen', 'Moletom cinza com estampa do Gojo Satoru. Super confortável para o dia a dia.', 179.90, 'Moletons', 'M', 25, 'jjk_gojo_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
 (7, 'Calça Cargo Cyberpunk', 'Calça cargo preta com detalhes em neon. Inspirada em Cyberpunk Edgerunners.', 189.90, 'Calças', '42', 15, 'cyberpunk_cargo.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(8, 'Camiseta Death Note', 'Camiseta preta com design do protagonista do Death Note. Premium quality.', 89.90, 'Camisetas', 'G', 45, 'death_note_tee.jpg', '2025-06-24 17:16:50', '2025-06-25 05:10:39'),
+(8, 'Camiseta Death Note', 'Camiseta preta com design minimalista do Death Note. Premium quality.', 89.90, 'Camisetas', 'G', 45, 'death_note_tee.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
 (9, 'Jaqueta Evangelion', 'Jaqueta varsity roxa e verde inspirada no EVA-01. Coleção exclusiva.', 299.90, 'Jaquetas', 'M', 10, 'evangelion_jacket.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
 (10, 'Shorts Dragon Ball', 'Shorts laranja inspirado no uniforme de treino do Goku. Perfeito para academia.', 119.90, 'Shorts', 'G', 30, 'dbz_shorts.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(11, 'Camiseta Hunter x Hunter', 'Camiseta cinza com estampa de personagem. Design discreto e elegante.', 84.90, 'Camisetas', 'GG', 40, 'hxh_nen_tee.jpg', '2025-06-24 17:16:50', '2025-06-25 05:19:54'),
-(12, 'Moletom My Hero Academia', 'Moletom azul e branco da U.A. High School. Licenciado oficial.', 199.90, 'Moletons', 'P', 20, 'mha_ua_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-25 05:02:30'),
+(11, 'Camiseta Hunter x Hunter', 'Camiseta preta com símbolos Nen. Design discreto e elegante.', 84.90, 'Camisetas', 'GG', 40, 'hxh_nen_tee.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
+(12, 'Moletom My Hero Academia', 'Moletom vermelho e branco da U.A. High School. Licenciado oficial.', 199.90, 'Moletons', 'P', 20, 'mha_ua_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
 (13, 'Calça Jogger Chainsaw Man', 'Calça jogger preta com estampa do Pochita. Streetwear premium.', 169.90, 'Calças', '40', 25, 'chainsaw_jogger.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
 (14, 'Camiseta Spy x Family', 'Camiseta rosa com a Anya. Design fofo e moderno.', 79.90, 'Camisetas', 'M', 50, 'spy_family_anya.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(15, 'Jaqueta Corta-Vento Pokémon', 'Jaqueta leve com estampa de uniforme de treinador. Ideal para dias frescos.', 139.90, 'Jaquetas', 'G', 35, 'pokemon_windbreaker.jpg', '2025-06-24 17:16:50', '2025-06-25 05:11:46');
+(15, 'Jaqueta Corta-Vento Pokémon', 'Jaqueta leve com estampa de Pokébolas. Ideal para dias frescos.', 139.90, 'Jaquetas', 'G', 35, 'pokemon_windbreaker.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50');
 
 -- --------------------------------------------------------
 
@@ -161,7 +195,9 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `address`, `cit
 (1, 'Admin', 'admin@tsukuyomi.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, NULL, NULL, NULL, NULL, 'admin', '2025-06-24 17:16:49'),
 (2, 'João Silva', 'joao@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '11987654321', 'Rua A, 123', 'São Paulo', 'SP', '01234-567', 'customer', '2025-06-24 17:16:50'),
 (3, 'Maria Santos', 'maria@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '11912345678', 'Av. B, 456', 'São Paulo', 'SP', '02345-678', 'customer', '2025-06-24 17:16:50'),
-(4, 'Pedro Oliveira', 'pedro@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '11923456789', 'Rua C, 789', 'São Paulo', 'SP', '03456-789', 'customer', '2025-06-24 17:16:50');
+(4, 'Pedro Oliveira', 'pedro@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '11923456789', 'Rua C, 789', 'São Paulo', 'SP', '03456-789', 'customer', '2025-06-24 17:16:50'),
+(5, 'Daniel José Dantas Jacometo', 'marciojjacometo@gmail.com', '$2y$10$3JvpLmupHtBQilXTassyY.tPnTrvPDK1Hxa.XwJC2JNXDVAIIRXxu', '18997222271', 'Rua João Corazza, 402', 'Presidente Prudente', 'SP', '19064-564', 'admin', '2025-06-25 01:24:48'),
+(6, 'João Pedro Garcia Girotto', 'godlolpro@gmail.com', '$2y$10$j7dbY7egOsGhUyd1zzgjV.yhWsEm8tRTLWJS1XF..TAs0KAB1gn.C', '18991238584', '', '', '', '19064145', 'customer', '2025-07-01 03:13:45');
 
 --
 -- Índices para tabelas despejadas
@@ -174,6 +210,13 @@ ALTER TABLE `cart_items`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_cart_item` (`user_id`,`product_id`),
   ADD KEY `product_id` (`product_id`);
+
+--
+-- Índices de tabela `coupons`
+--
+ALTER TABLE `coupons`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `code` (`code`);
 
 --
 -- Índices de tabela `orders`
@@ -211,6 +254,12 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT de tabela `cart_items`
 --
 ALTER TABLE `cart_items`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de tabela `coupons`
+--
+ALTER TABLE `coupons`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
@@ -235,7 +284,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT de tabela `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Restrições para tabelas despejadas

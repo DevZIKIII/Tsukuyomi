@@ -1,62 +1,4 @@
-﻿<script>
-    function applyCoupon() {
-    const code = document.getElementById('coupon_code').value.trim();
-    const messageDiv = document.getElementById('coupon-message');
-    
-    if (!code) {
-        messageDiv.textContent = 'Por favor, digite um código de cupom';
-        messageDiv.className = 'coupon-message error';
-        return;
-    }
-    
-    const subtotalText = document.getElementById('cart-subtotal').textContent;
-    const subtotal = parseFloat(subtotalText.replace('R$ ', '').replace('.', '').replace(',', '.'));
-    
-    const formData = new FormData();
-    formData.append('code', code);
-    formData.append('total', subtotal);
-    
-    fetch('index.php?action=validate_coupon', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.valid) {
-            messageDiv.textContent = data.message;
-            messageDiv.className = 'coupon-message success';
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            messageDiv.textContent = data.message;
-            messageDiv.className = 'coupon-message error';
-        }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        messageDiv.textContent = 'Erro ao validar cupom';
-        messageDiv.className = 'coupon-message error';
-    });
-}
-
-// Remover cupom
-function removeCoupon() {
-    if (confirm('Deseja remover o cupom de desconto?')) {
-        fetch('index.php?action=remove_coupon', {
-            method: 'POST'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-        });
-    }
-}
-</script>
-<?php include '../views/layout/header.php'; ?>
+﻿<?php include '../views/layout/header.php'; ?>
 
 <h1>Meu Carrinho</h1>
 
@@ -684,6 +626,65 @@ function removeCoupon() {
 </style>
 
 <script>
+
+// Aplicar cupom
+function applyCoupon() {
+    const code = document.getElementById('coupon_code').value.trim();
+    const messageDiv = document.getElementById('coupon-message');
+    
+    if (!code) {
+        messageDiv.textContent = 'Por favor, digite um código de cupom';
+        messageDiv.className = 'coupon-message error';
+        return;
+    }
+    
+    const subtotalText = document.getElementById('cart-subtotal').textContent;
+    const subtotal = parseFloat(subtotalText.replace('R$ ', '').replace('.', '').replace(',', '.'));
+    
+    const formData = new FormData();
+    formData.append('code', code);
+    formData.append('total', subtotal);
+    
+    fetch('index.php?action=validate_coupon', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.valid) {
+            messageDiv.textContent = data.message;
+            messageDiv.className = 'coupon-message success';
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            messageDiv.textContent = data.message;
+            messageDiv.className = 'coupon-message error';
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        messageDiv.textContent = 'Erro ao validar cupom';
+        messageDiv.className = 'coupon-message error';
+    });
+}
+
+// Remover cupom
+function removeCoupon() {
+    if (confirm('Deseja remover o cupom de desconto?')) {
+        fetch('index.php?action=remove_coupon', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+        });
+    }
+}
+
 // Função para buscar CEP ao clicar no botão
 function buscarCEPClick() {
     const cepInput = document.getElementById('shipping_cep');

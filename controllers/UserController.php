@@ -11,8 +11,8 @@ class UserController {
         $database = new Database();
         $this->db = $database->getConnection();
         $this->user = new User($this->db);
-        // Edit user form (admin)
     }
+        // Edit user form (admin)
     public function edit($id) {
         if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
             redirectTo();
@@ -134,11 +134,11 @@ class UserController {
             $this->user->zip_code = $_POST['zip_code'];
             $this->user->user_type = 'customer';
             
-            // // Check if email already exists
-            // if($this->user->emailExists()) {
-            //     $_SESSION['error'] = "Este email já está cadastrado.";
-            //     redirectTo('register');
-            // }
+            // Check if email already exists
+            if($this->user->emailExists()) {
+                $_SESSION['error'] = "Este email já está cadastrado.";
+                redirectTo('register');
+            }
             
             if($this->user->create()) {
                 $_SESSION['message'] = "Conta criada com sucesso! Faça login.";

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tsukuyomi - Streetwear Geek</title>
     
-    <!-- CSS -->
+    <!-- CSS com caminho absoluto -->
     <link rel="stylesheet" href="css/style.css">
     
     <!-- Fonte Google -->
@@ -17,47 +17,45 @@
     <header>
         <nav>
             <div class="container nav-container">
-                <a href="index.php" class="logo">Tsukuyomi</a>
+                <a href="/tsukuyomitest/public/index.php" class="logo">Tsukuyomi</a>
                 
                 <ul class="nav-links">
                     <li><a href="index.php">Home</a></li>
                     <li><a href="index.php?action=products">Produtos</a></li>
-                    <!-- <li><a href="#about">Sobre</a></li>
-                    <li><a href="#contact">Contato</a></li> -->
+                    <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
+                        <li><a href="index.php?action=create_product">Adicionar Produto</a></li>
+                        <li><a href="index.php?action=users">Usuários</a></li>
+                        <li><a href="index.php?action=coupons">Cupons</a></li>
+                        <li><a href="index.php?action=all_orders">Pedidos</a></li>
+                    <?php endif; ?>
                 </ul>
                 
                 <div class="nav-actions">
-                    <form class="search-form" method="GET" action="index.php">
+                    <form class="search-form" method="GET" action="/tsukuyomitest/public/index.php">
                         <input type="hidden" name="action" value="search">
                         <input type="text" name="q" placeholder="Buscar..." class="search-input">
                     </form>
                     
                     <?php if(isset($_SESSION['user_id'])): ?>
-                        <?php 
-                        // Definir cart_count na sessão para evitar múltiplas consultas
-                        if (!isset($_SESSION['cart_count'])) {
-                            $_SESSION['cart_count'] = 0;
-                        }
-                        ?>
-                        <a href="index.php?action=cart" class="btn btn-secondary btn-sm">
+                        <a href="/tsukuyomitest/public/index.php?action=cart" class="btn btn-secondary btn-sm">
                             Carrinho
-                            <?php if($_SESSION['cart_count'] > 0): ?>
+                            <?php if(isset($_SESSION['cart_count']) && $_SESSION['cart_count'] > 0): ?>
                                 <span class="cart-badge"><?php echo $_SESSION['cart_count']; ?></span>
                             <?php endif; ?>
                         </a>
                         
                         <div class="user-menu">
                             <span>Olá, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
-                            <a href="index.php?action=profile">Perfil</a>
+                            <a href="/tsukuyomitest/public/index.php?action=profile">Perfil</a>
                             <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
-                                <a href="index.php?action=users">Usuários</a>
+                                <a href="/tsukuyomitest/public/index.php?action=users">Usuários</a>
                             <?php endif; ?>
-                            <a href="index.php?action=orders">Pedidos</a>
-                            <a href="index.php?action=logout">Sair</a>
+                            <a href="/tsukuyomitest/public/index.php?action=orders">Pedidos</a>
+                            <a href="/tsukuyomitest/public/index.php?action=logout">Sair</a>
                         </div>
                     <?php else: ?>
-                        <a href="index.php?action=login" class="btn btn-secondary btn-sm">Login</a>
-                        <a href="index.php?action=register" class="btn btn-primary btn-sm">Cadastrar</a>
+                        <a href="/tsukuyomitest/public/index.php?action=login" class="btn btn-secondary btn-sm">Login</a>
+                        <a href="/tsukuyomitest/public/index.php?action=register" class="btn btn-primary btn-sm">Cadastrar</a>
                     <?php endif; ?>
                     
                     <button class="menu-toggle">☰</button>

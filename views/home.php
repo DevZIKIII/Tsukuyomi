@@ -48,6 +48,7 @@
                         
                         <div class="user-menu">
                             <span class="user-name">Olá, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+                            <div class="user_action">
                                 <ul>
                                     <li><a href="index.php?action=profile">Perfil</a></li>
                                     <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
@@ -56,6 +57,7 @@
                                     <li><a href="index.php?action=orders">Pedidos</a></li>
                                     <li><a href="index.php?action=logout">Sair</a></li>
                                 </ul>
+                            </div>
                         </div>
                     <?php else: ?>
                         <a href="index.php?action=login" class="btn btn-secondary btn-sm">Login</a>

@@ -44,12 +44,14 @@
                         
                         <div class="user-menu">
                             <span>Olá, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
-                            <a href="/tsukuyomi/public/index.php?action=profile">Perfil</a>
-                            <!-- <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
-                                <a href="/tsukuyomi/public/index.php?action=users">Usuários</a>
-                            <?php endif; ?> -->
-                            <a href="/tsukuyomi/public/index.php?action=orders">Pedidos</a>
-                            <a href="/tsukuyomi/public/index.php?action=logout">Sair</a>
+                            <div class="user_action">
+                                <a href="/tsukuyomi/public/index.php?action=profile">Perfil</a>
+                                <!-- <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
+                                    <a href="/tsukuyomi/public/index.php?action=users">Usuários</a>
+                                <?php endif; ?> -->
+                                <a href="/tsukuyomi/public/index.php?action=orders">Pedidos</a>
+                                <a href="/tsukuyomi/public/index.php?action=logout">Sair</a>
+                            </div>
                         </div>
                     <?php else: ?>
                         <a href="/tsukuyomi/public/index.php?action=login" class="btn btn-secondary btn-sm">Login</a>

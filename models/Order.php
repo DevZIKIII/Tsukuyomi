@@ -144,31 +144,80 @@ class Order {
         return $stmt;
     }
     
-    // Update order status
-    public function updateStatus() {
-        $query = "UPDATE " . $this->table_name . "
-                SET status = :status
-                WHERE id = :id";
+    // // Update order status
+    // public function updateStatus() {
+    //     $query = "UPDATE " . $this->table_name . "
+    //             SET status = :status
+    //             WHERE id = :id";
         
-        $stmt = $this->conn->prepare($query);
+    //     $stmt = $this->conn->prepare($query);
         
-        $stmt->bindParam(':status', $this->status);
-        $stmt->bindParam(':id', $this->id);
+    //     $stmt->bindParam(':status', $this->status);
+    //     $stmt->bindParam(':id', $this->id);
         
-        return $stmt->execute();
-    }
+    //     return $stmt->execute();
+    // }
     
-    // Get all orders (admin)
+    // Método para listar todos os pedidos (admin)
     public function getAllOrders() {
-        $query = "SELECT o.*, u.name as user_name
-                FROM " . $this->table_name . " o
-                JOIN users u ON o.user_id = u.id
-                ORDER BY o.created_at DESC";
+        $query = "SELECT 
+                    o.id,
+                    o.user_id,
+                    o.total_amount,
+                    o.status,
+                    o.payment_method,
+                    o.shipping_address,
+                    o.created_at,
+                    u.name as user_name,
+                    u.email as user_email
+                  FROM orders o
+                  LEFT JOIN users u ON o.user_id = u.id
+                  ORDER BY o.created_at DESC";
         
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         
         return $stmt;
+    }
+    
+    // Método para filtrar pedidos por status (admin)
+    public function getAllOrdersByStatus($status) {
+        $query = "SELECT 
+                    o.id,
+                    o.user_id,
+                    o.total_amount,
+                    o.status,
+                    o.payment_method,
+                    o.shipping_address,
+                    o.created_at,
+                    u.name as user_name,
+                    u.email as user_email
+                  FROM orders o
+                  LEFT JOIN users u ON o.user_id = u.id
+                  WHERE o.status = :status
+                  ORDER BY o.created_at DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':status', $status);
+        $stmt->execute();
+        
+        return $stmt;
+    }
+    
+    // Método para atualizar status do pedido
+    public function updateStatus() {
+        $query = "UPDATE orders 
+                  SET status = :status 
+                  WHERE id = :id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':status', $this->status);
+        $stmt->bindParam(':id', $this->id);
+        
+        if($stmt->execute()) {
+            return true;
+        }
+        return false;
     }
 }
 ?>

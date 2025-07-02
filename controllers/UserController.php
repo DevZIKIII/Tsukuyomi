@@ -82,16 +82,23 @@ class UserController {
     
     // Show profile
     public function profile() {
-        if(!isset($_SESSION['user_id'])) {
-            redirectTo('login');
-        }
-        
-        $user = $this->userFactory->createModel();
-        $user->id = $_SESSION['user_id'];
-        $user->readOne();
-        
-        include '../views/users/profile.php';
+    if(!isset($_SESSION['user_id'])) {
+        redirectTo('login');
     }
+    
+    $user = $this->userFactory->createModel();
+    $user->id = $_SESSION['user_id'];
+    
+    // Buscar dados do usuário
+    if($user->readOne()) {
+        // Dados encontrados, prosseguir para a view
+        include '../views/users/profile.php';
+    } else {
+        // Usuário não encontrado, redirecionar
+        $_SESSION['error'] = "Erro ao carregar perfil do usuário.";
+        redirectTo('login');
+    }
+}
     
     // Update user
     public function update() {

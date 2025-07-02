@@ -249,6 +249,7 @@ else {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #dee2e6;
+    color: black;
 }
 
 .admin-table th {

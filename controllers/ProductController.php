@@ -1,21 +1,19 @@
 ﻿<?php
-//session_start();
-require_once '../config/database.php';
-require_once '../models/Product.php';
+require_once '../factories/ModelFactory.php';
 
 class ProductController {
-    private $db;
-    private $product;
+    private $productFactory;
     
     public function __construct() {
-        $database = new Database();
-        $this->db = $database->getConnection();
-        $this->product = new Product($this->db);
+        // Usar o FactoryManager para obter a factory de produtos
+        $factoryManager = FactoryManager::getInstance();
+        $this->productFactory = $factoryManager->getFactory('product');
     }
     
     // Display all products
     public function index() {
-        $stmt = $this->product->read();
+        $product = $this->productFactory->createModel();
+        $stmt = $product->read();
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         include '../views/products/index.php';
@@ -23,8 +21,9 @@ class ProductController {
     
     // Show single product
     public function show($id) {
-        $this->product->id = $id;
-        $this->product->readOne();
+        $product = $this->productFactory->createModel();
+        $product->id = $id;
+        $product->readOne();
         
         include '../views/products/show.php';
     }
@@ -32,7 +31,7 @@ class ProductController {
     // Create product form
     public function create() {
         if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] != 'admin') {
-            header('Location: /tsukuyomi/public/index.php');
+            header('Location: index.php');
             exit();
         }
         
@@ -42,20 +41,15 @@ class ProductController {
     // Store product
     public function store() {
         if($_POST) {
-            $this->product->name = $_POST['name'];
-            $this->product->description = $_POST['description'];
-            $this->product->price = $_POST['price'];
-            $this->product->category = $_POST['category'];
-            $this->product->size = $_POST['size'];
-            $this->product->stock_quantity = $_POST['stock_quantity'];
-            $this->product->image_url = $_POST['image_url'];
+            // Usar a factory para criar produto com dados
+            $product = $this->productFactory->createProductWithData($_POST);
             
-            if($this->product->create()) {
+            if($product->create()) {
                 $_SESSION['message'] = "Produto criado com sucesso!";
-                header('Location: /tsukuyomi/public/index.php?action=products');
+                header('Location: index.php?action=products');
             } else {
                 $_SESSION['error'] = "Erro ao criar produto.";
-                header('Location: /tsukuyomi/public/index.php?action=create_product');
+                header('Location: index.php?action=create_product');
             }
         }
     }
@@ -63,12 +57,13 @@ class ProductController {
     // Edit product form
     public function edit($id) {
         if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] != 'admin') {
-            header('Location: /tsukuyomi/public/index.php');
+            header('Location: index.php');
             exit();
         }
         
-        $this->product->id = $id;
-        $this->product->readOne();
+        $product = $this->productFactory->createModel();
+        $product->id = $id;
+        $product->readOne();
         
         include '../views/products/edit.php';
     }
@@ -76,21 +71,15 @@ class ProductController {
     // Update product
     public function update($id) {
         if($_POST) {
-            $this->product->id = $id;
-            $this->product->name = $_POST['name'];
-            $this->product->description = $_POST['description'];
-            $this->product->price = $_POST['price'];
-            $this->product->category = $_POST['category'];
-            $this->product->size = $_POST['size'];
-            $this->product->stock_quantity = $_POST['stock_quantity'];
-            $this->product->image_url = $_POST['image_url'];
+            $product = $this->productFactory->createProductWithData($_POST);
+            $product->id = $id;
             
-            if($this->product->update()) {
+            if($product->update()) {
                 $_SESSION['message'] = "Produto atualizado com sucesso!";
-                header('Location: /tsukuyomi/public/index.php?action=products');
+                header('Location: index.php?action=products');
             } else {
                 $_SESSION['error'] = "Erro ao atualizar produto.";
-                header('Location: /tsukuyomi/public/index.php?action=edit_product&id=' . $id);
+                header('Location: index.php?action=edit_product&id=' . $id);
             }
         }
     }
@@ -98,25 +87,27 @@ class ProductController {
     // Delete product
     public function destroy($id) {
         if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] != 'admin') {
-            header('Location: /tsukuyomi/public/index.php');
+            header('Location: index.php');
             exit();
         }
         
-        $this->product->id = $id;
+        $product = $this->productFactory->createModel();
+        $product->id = $id;
         
-        if($this->product->delete()) {
+        if($product->delete()) {
             $_SESSION['message'] = "Produto excluído com sucesso!";
         } else {
             $_SESSION['error'] = "Erro ao excluir produto.";
         }
         
-        header('Location: /tsukuyomi/public/index.php?action=products');
+        header('Location: index.php?action=products');
     }
     
     // Search products
     public function search() {
         $keywords = isset($_GET['q']) ? $_GET['q'] : '';
-        $stmt = $this->product->search($keywords);
+        $product = $this->productFactory->createModel();
+        $stmt = $product->search($keywords);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         include '../views/products/index.php';

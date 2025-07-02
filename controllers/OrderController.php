@@ -1,16 +1,17 @@
 ﻿<?php
-require_once '../config/database.php';
-require_once '../models/Order.php';
-require_once '../models/Cart.php';
+require_once '../factories/ModelFactory.php';
 
 class OrderController {
-    private $db;
-    private $order;
+    private $orderFactory;
+    private $cartFactory;
+    private $couponFactory;
     
     public function __construct() {
-        $database = new Database();
-        $this->db = $database->getConnection();
-        $this->order = new Order($this->db);
+        // Usar o FactoryManager para obter as factories necessárias
+        $factoryManager = FactoryManager::getInstance();
+        $this->orderFactory = $factoryManager->getFactory('order');
+        $this->cartFactory = $factoryManager->getFactory('cart');
+        $this->couponFactory = $factoryManager->getFactory('coupon');
     }
     
     // Create order
@@ -22,7 +23,7 @@ class OrderController {
         
         if($_POST) {
             // Get cart total
-            $cart = new Cart($this->db);
+            $cart = $this->cartFactory->createModel();
             $cart->user_id = $_SESSION['user_id'];
             $total = $cart->getCartTotal();
             
@@ -37,17 +38,18 @@ class OrderController {
                     $total = $total - $discount;
                 }
                 
-                $this->order->user_id = $_SESSION['user_id'];
-                $this->order->total_amount = $total;
-                $this->order->status = 'pending';
-                $this->order->payment_method = $_POST['payment_method'];
-                $this->order->shipping_address = $_POST['shipping_address'];
+                // Usar factory para criar pedido pendente
+                $order = $this->orderFactory->createPendingOrder(
+                    $_SESSION['user_id'],
+                    $total,
+                    $_POST['payment_method'],
+                    $_POST['shipping_address']
+                );
                 
-                if($this->order->create()) {
+                if($order->create()) {
                     // Se usou cupom, incrementar o contador de uso
                     if($coupon_id) {
-                        require_once '../models/Coupon.php';
-                        $coupon = new Coupon($this->db);
+                        $coupon = $this->couponFactory->createModel();
                         $coupon->incrementUsage($coupon_id);
                         unset($_SESSION['coupon']);
                     }
@@ -55,8 +57,8 @@ class OrderController {
                     // Limpar contagem do carrinho
                     $_SESSION['cart_count'] = 0;
                     
-                    $_SESSION['message'] = "Pedido realizado com sucesso! Número do pedido: " . $this->order->id;
-                    header('Location: index.php?action=order&id=' . $this->order->id);
+                    $_SESSION['message'] = "Pedido realizado com sucesso! Número do pedido: " . $order->id;
+                    header('Location: index.php?action=order&id=' . $order->id);
                     exit();
                 } else {
                     $_SESSION['error'] = "Erro ao processar pedido.";
@@ -78,8 +80,9 @@ class OrderController {
             exit();
         }
         
-        $this->order->user_id = $_SESSION['user_id'];
-        $stmt = $this->order->getUserOrders();
+        $order = $this->orderFactory->createModel();
+        $order->user_id = $_SESSION['user_id'];
+        $stmt = $order->getUserOrders();
         $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         include '../views/orders/index.php';
@@ -92,16 +95,17 @@ class OrderController {
             exit();
         }
         
-        $this->order->id = $id;
-        $order = $this->order->getOrderDetails();
+        $order = $this->orderFactory->createModel();
+        $order->id = $id;
+        $orderDetails = $order->getOrderDetails();
         
         // Check if order belongs to user or user is admin
-        if(!$order || ($order['user_id'] != $_SESSION['user_id'] && $_SESSION['user_type'] != 'admin')) {
+        if(!$orderDetails || ($orderDetails['user_id'] != $_SESSION['user_id'] && $_SESSION['user_type'] != 'admin')) {
             header('Location: index.php');
             exit();
         }
         
-        $stmt = $this->order->getOrderItems();
+        $stmt = $order->getOrderItems();
         $order_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         include '../views/orders/show.php';
@@ -115,16 +119,17 @@ class OrderController {
         }
         
         if($_POST) {
-            $this->order->id = $_POST['order_id'];
-            $this->order->status = $_POST['status'];
+            $order = $this->orderFactory->createModel();
+            $order->id = $_POST['order_id'];
+            $order->status = $_POST['status'];
             
-            if($this->order->updateStatus()) {
+            if($order->updateStatus()) {
                 $_SESSION['message'] = "Status do pedido atualizado.";
             } else {
                 $_SESSION['error'] = "Erro ao atualizar status.";
             }
             
-            header('Location: index.php?action=order&id=' . $this->order->id);
+            header('Location: index.php?action=order&id=' . $order->id);
             exit();
         }
     }
@@ -136,7 +141,8 @@ class OrderController {
             exit();
         }
         
-        $stmt = $this->order->getAllOrders();
+        $order = $this->orderFactory->createModel();
+        $stmt = $order->getAllOrders();
         $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         include '../views/admin/orders/index.php';

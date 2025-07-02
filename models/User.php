@@ -83,27 +83,39 @@ class User {
     
     // Read single user
     public function readOne() {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE id = ? LIMIT 0,1";
+    $query = "SELECT 
+                id, name, email, phone, address, city, state, zip_code, 
+                user_type, created_at
+              FROM users 
+              WHERE id = ? 
+              LIMIT 0,1";
+    
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(1, $this->id);
+    $stmt->execute();
+    
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if($row) {
+        $this->name = $row['name'];
+        $this->email = $row['email'];
+        $this->phone = $row['phone'] ?? '';
+        $this->address = $row['address'] ?? '';
+        $this->city = $row['city'] ?? '';
+        $this->state = $row['state'] ?? '';
+        $this->zip_code = $row['zip_code'] ?? '';
+        $this->user_type = $row['user_type'];
+        $this->created_at = $row['created_at'] ?? '';
         
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $this->id);
-        $stmt->execute();
+        // Só define updated_at se existir na tabela
+        $this->updated_at = $row['updated_at'] ?? null;
         
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if($row) {
-            $this->name = $row['name'];
-            $this->email = $row['email'];
-            $this->phone = $row['phone'];
-            $this->address = $row['address'];
-            $this->city = $row['city'];
-            $this->state = $row['state'];
-            $this->zip_code = $row['zip_code'];
-            $this->user_type = $row['user_type'];
-            $this->created_at = $row['created_at'];
-            $this->updated_at = $row['updated_at'];
-        }
+        return true;
     }
+    
+    return false;
+    }
+
     
     // Update user
     public function update() {

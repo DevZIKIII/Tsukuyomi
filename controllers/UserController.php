@@ -1,88 +1,14 @@
 ﻿<?php
-require_once '../config/database.php';
-require_once '../models/User.php';
+require_once '../factories/ModelFactory.php';
 require_once '../config/base.php';
 
 class UserController {
-    private $db;
-    private $user;
+    private $userFactory;
     
     public function __construct() {
-        $database = new Database();
-        $this->db = $database->getConnection();
-        $this->user = new User($this->db);
-    }
-        // Edit user form (admin)
-    public function edit($id) {
-        if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
-            redirectTo();
-        }
-        
-        $query = "SELECT * FROM users WHERE id = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(1, $id);
-        $stmt->execute();
-        
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if(!$user) {
-            $_SESSION['error'] = "Usuário não encontrado.";
-            redirectTo('users');
-        }
-        
-        include '../views/users/edit.php';
-    }
-    
-    // Update user (admin)
-    public function updateUser($id) {
-        if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
-            redirectTo();
-        }
-        
-        if($_POST) {
-            $query = "UPDATE users SET 
-                     name = :name,
-                     email = :email,
-                     phone = :phone,
-                     address = :address,
-                     city = :city,
-                     state = :state,
-                     zip_code = :zip_code,
-                     user_type = :user_type";
-            
-            // Se uma nova senha foi fornecida
-            if(!empty($_POST['new_password'])) {
-                $query .= ", password = :password";
-            }
-            
-            $query .= " WHERE id = :id";
-            
-            $stmt = $this->db->prepare($query);
-            
-            // Bind parameters
-            $stmt->bindParam(':name', $_POST['name']);
-            $stmt->bindParam(':email', $_POST['email']);
-            $stmt->bindParam(':phone', $_POST['phone']);
-            $stmt->bindParam(':address', $_POST['address']);
-            $stmt->bindParam(':city', $_POST['city']);
-            $stmt->bindParam(':state', $_POST['state']);
-            $stmt->bindParam(':zip_code', $_POST['zip_code']);
-            $stmt->bindParam(':user_type', $_POST['user_type']);
-            $stmt->bindParam(':id', $id);
-            
-            if(!empty($_POST['new_password'])) {
-                $password_hash = password_hash($_POST['new_password'], PASSWORD_BCRYPT);
-                $stmt->bindParam(':password', $password_hash);
-            }
-            
-            if($stmt->execute()) {
-                $_SESSION['message'] = "Usuário atualizado com sucesso!";
-            } else {
-                $_SESSION['error'] = "Erro ao atualizar usuário.";
-            }
-            
-            redirectTo('users');
-        }
+        // Usar o FactoryManager para obter a factory de usuários
+        $factoryManager = FactoryManager::getInstance();
+        $this->userFactory = $factoryManager->getFactory('user');
     }
     
     // Show login form
@@ -98,13 +24,14 @@ class UserController {
     // Authenticate user
     public function authenticate() {
         if($_POST) {
-            $this->user->email = $_POST['email'];
-            $this->user->password = $_POST['password'];
+            $user = $this->userFactory->createModel();
+            $user->email = $_POST['email'];
+            $user->password = $_POST['password'];
             
-            if($this->user->login()) {
-                $_SESSION['user_id'] = $this->user->id;
-                $_SESSION['user_name'] = $this->user->name;
-                $_SESSION['user_type'] = $this->user->user_type;
+            if($user->login()) {
+                $_SESSION['user_id'] = $user->id;
+                $_SESSION['user_name'] = $user->name;
+                $_SESSION['user_type'] = $user->user_type;
                 
                 redirectTo('products');
             } else {
@@ -123,24 +50,27 @@ class UserController {
                 redirectTo('register');
             }
             
-            // Set user properties
-            $this->user->name = $_POST['name'];
-            $this->user->email = $_POST['email'];
-            $this->user->password = $_POST['password'];
-            $this->user->phone = $_POST['phone'];
-            $this->user->address = $_POST['address'];
-            $this->user->city = $_POST['city'];
-            $this->user->state = $_POST['state'];
-            $this->user->zip_code = $_POST['zip_code'];
-            $this->user->user_type = 'customer';
+            // Usar factory para criar cliente
+            $userData = [
+                'name' => $_POST['name'],
+                'email' => $_POST['email'],
+                'password' => $_POST['password'],
+                'phone' => $_POST['phone'],
+                'address' => $_POST['address'],
+                'city' => $_POST['city'],
+                'state' => $_POST['state'],
+                'zip_code' => $_POST['zip_code']
+            ];
+            
+            $user = $this->userFactory->createCustomer($userData);
             
             // Check if email already exists
-            if($this->user->emailExists()) {
+            if($user->emailExists()) {
                 $_SESSION['error'] = "Este email já está cadastrado.";
                 redirectTo('register');
             }
             
-            if($this->user->create()) {
+            if($user->create()) {
                 $_SESSION['message'] = "Conta criada com sucesso! Faça login.";
                 redirectTo('login');
             } else {
@@ -156,8 +86,9 @@ class UserController {
             redirectTo('login');
         }
         
-        $this->user->id = $_SESSION['user_id'];
-        $this->user->readOne();
+        $user = $this->userFactory->createModel();
+        $user->id = $_SESSION['user_id'];
+        $user->readOne();
         
         include '../views/users/profile.php';
     }
@@ -169,17 +100,18 @@ class UserController {
         }
         
         if($_POST) {
-            $this->user->id = $_SESSION['user_id'];
-            $this->user->name = $_POST['name'];
-            $this->user->email = $_POST['email'];
-            $this->user->phone = $_POST['phone'];
-            $this->user->address = $_POST['address'];
-            $this->user->city = $_POST['city'];
-            $this->user->state = $_POST['state'];
-            $this->user->zip_code = $_POST['zip_code'];
+            $user = $this->userFactory->createModel();
+            $user->id = $_SESSION['user_id'];
+            $user->name = $_POST['name'];
+            $user->email = $_POST['email'];
+            $user->phone = $_POST['phone'];
+            $user->address = $_POST['address'];
+            $user->city = $_POST['city'];
+            $user->state = $_POST['state'];
+            $user->zip_code = $_POST['zip_code'];
             
-            if($this->user->update()) {
-                $_SESSION['user_name'] = $this->user->name;
+            if($user->update()) {
+                $_SESSION['user_name'] = $user->name;
                 $_SESSION['message'] = "Perfil atualizado com sucesso!";
             } else {
                 $_SESSION['error'] = "Erro ao atualizar perfil.";
@@ -201,10 +133,142 @@ class UserController {
             redirectTo();
         }
         
-        $stmt = $this->user->read();
+        $user = $this->userFactory->createModel();
+        $stmt = $user->read();
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         include '../views/users/index.php';
+    }
+    
+    // Show user details (admin)
+    public function show($id) {
+        if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
+            redirectTo();
+        }
+        
+        $user = $this->userFactory->createModel();
+        $user->id = $id;
+        $user->readOne();
+        
+        include '../views/users/show.php';
+    }
+    
+    // Create user form (admin)
+    public function create() {
+        if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
+            redirectTo();
+        }
+        
+        include '../views/users/create.php';
+    }
+    
+    // Store user (admin)
+    public function storeAdmin() {
+        if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
+            redirectTo();
+        }
+        
+        if($_POST) {
+            $userData = [
+                'name' => $_POST['name'],
+                'email' => $_POST['email'],
+                'password' => $_POST['password'],
+                'phone' => $_POST['phone'],
+                'address' => $_POST['address'],
+                'city' => $_POST['city'],
+                'state' => $_POST['state'],
+                'zip_code' => $_POST['zip_code']
+            ];
+            
+            // Criar usuário baseado no tipo
+            if($_POST['user_type'] === 'admin') {
+                $user = $this->userFactory->createAdmin($userData);
+            } else {
+                $user = $this->userFactory->createCustomer($userData);
+            }
+            
+            if($user->emailExists()) {
+                $_SESSION['error'] = "Este email já está cadastrado.";
+                redirectTo('create_user');
+            }
+            
+            if($user->create()) {
+                $_SESSION['message'] = "Usuário criado com sucesso!";
+                redirectTo('users');
+            } else {
+                $_SESSION['error'] = "Erro ao criar usuário.";
+                redirectTo('create_user');
+            }
+        }
+    }
+    
+    // Edit user form (admin)
+    public function edit($id) {
+        if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
+            redirectTo();
+        }
+        
+        $user = $this->userFactory->createModel();
+        $user->id = $id;
+        $user->readOne();
+        
+        if(!$user->id) {
+            $_SESSION['error'] = "Usuário não encontrado.";
+            redirectTo('users');
+        }
+        
+        include '../views/users/edit.php';
+    }
+    
+    // Update user (admin)
+    public function updateUser($id) {
+        if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
+            redirectTo();
+        }
+        
+        if($_POST) {
+            $user = $this->userFactory->createModel();
+            $user->id = $id;
+            $user->name = $_POST['name'];
+            $user->email = $_POST['email'];
+            $user->phone = $_POST['phone'];
+            $user->address = $_POST['address'];
+            $user->city = $_POST['city'];
+            $user->state = $_POST['state'];
+            $user->zip_code = $_POST['zip_code'];
+            $user->user_type = $_POST['user_type'];
+            
+            // Se uma nova senha foi fornecida
+            if(!empty($_POST['new_password'])) {
+                $user->password = $_POST['new_password'];
+            }
+            
+            if($user->update()) {
+                $_SESSION['message'] = "Usuário atualizado com sucesso!";
+            } else {
+                $_SESSION['error'] = "Erro ao atualizar usuário.";
+            }
+            
+            redirectTo('users');
+        }
+    }
+    
+    // Delete user (admin)
+    public function delete($id) {
+        if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
+            redirectTo();
+        }
+        
+        $user = $this->userFactory->createModel();
+        $user->id = $id;
+        
+        if($user->delete()) {
+            $_SESSION['message'] = "Usuário excluído com sucesso!";
+        } else {
+            $_SESSION['error'] = "Erro ao excluir usuário.";
+        }
+        
+        redirectTo('users');
     }
 }
 ?>

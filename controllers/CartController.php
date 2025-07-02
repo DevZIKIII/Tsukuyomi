@@ -1,16 +1,15 @@
 ﻿<?php
-require_once '../config/database.php';
-require_once '../models/Cart.php';
-require_once '../models/Product.php';
+require_once '../factories/ModelFactory.php';
 
 class CartController {
-    private $db;
-    private $cart;
+    private $cartFactory;
+    private $productFactory;
     
     public function __construct() {
-        $database = new Database();
-        $this->db = $database->getConnection();
-        $this->cart = new Cart($this->db);
+        // Usar o FactoryManager para obter as factories necessárias
+        $factoryManager = FactoryManager::getInstance();
+        $this->cartFactory = $factoryManager->getFactory('cart');
+        $this->productFactory = $factoryManager->getFactory('product');
     }
     
     // Show cart
@@ -20,10 +19,11 @@ class CartController {
             exit();
         }
         
-        $this->cart->user_id = $_SESSION['user_id'];
-        $stmt = $this->cart->getCartItems();
+        $cart = $this->cartFactory->createModel();
+        $cart->user_id = $_SESSION['user_id'];
+        $stmt = $cart->getCartItems();
         $cart_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $total = $this->cart->getCartTotal();
+        $total = $cart->getCartTotal();
         
         include '../views/cart/index.php';
     }
@@ -54,15 +54,17 @@ class CartController {
                 exit();
             }
             
-            // Configurar dados do carrinho
-            $this->cart->user_id = $_SESSION['user_id'];
-            $this->cart->product_id = $_POST['product_id'];
-            $this->cart->quantity = $_POST['quantity'] ?? 1;
+            // Usar factory para criar item de carrinho
+            $cart = $this->cartFactory->createCartItem(
+                $_SESSION['user_id'],
+                $_POST['product_id'],
+                $_POST['quantity'] ?? 1
+            );
             
             // Tentar adicionar ao carrinho
-            if($this->cart->addToCart()) {
+            if($cart->addToCart()) {
                 // Atualizar contagem do carrinho na sessão
-                $_SESSION['cart_count'] = $this->cart->getCartCount();
+                $_SESSION['cart_count'] = $cart->getCartCount();
                 $response = [
                     'success' => true, 
                     'message' => 'Produto adicionado ao carrinho',
@@ -95,12 +97,13 @@ class CartController {
         }
         
         if($_POST && isset($_POST['cart_id']) && isset($_POST['quantity'])) {
-            $this->cart->id = $_POST['cart_id'];
-            $this->cart->user_id = $_SESSION['user_id'];
-            $this->cart->quantity = $_POST['quantity'];
+            $cart = $this->cartFactory->createModel();
+            $cart->id = $_POST['cart_id'];
+            $cart->user_id = $_SESSION['user_id'];
+            $cart->quantity = $_POST['quantity'];
             
-            if($this->cart->updateQuantity()) {
-                $_SESSION['cart_count'] = $this->cart->getCartCount();
+            if($cart->updateQuantity()) {
+                $_SESSION['cart_count'] = $cart->getCartCount();
                 echo json_encode(['success' => true]);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Erro ao atualizar']);
@@ -118,12 +121,13 @@ class CartController {
             exit();
         }
         
-        $this->cart->id = $id;
-        $this->cart->user_id = $_SESSION['user_id'];
+        $cart = $this->cartFactory->createModel();
+        $cart->id = $id;
+        $cart->user_id = $_SESSION['user_id'];
         
-        if($this->cart->removeFromCart()) {
+        if($cart->removeFromCart()) {
             $_SESSION['message'] = "Item removido do carrinho.";
-            $_SESSION['cart_count'] = $this->cart->getCartCount();
+            $_SESSION['cart_count'] = $cart->getCartCount();
         } else {
             $_SESSION['error'] = "Erro ao remover item.";
         }
@@ -139,9 +143,10 @@ class CartController {
             exit();
         }
         
-        $this->cart->user_id = $_SESSION['user_id'];
+        $cart = $this->cartFactory->createModel();
+        $cart->user_id = $_SESSION['user_id'];
         
-        if($this->cart->clearCart()) {
+        if($cart->clearCart()) {
             $_SESSION['message'] = "Carrinho limpo.";
             $_SESSION['cart_count'] = 0;
         } else {

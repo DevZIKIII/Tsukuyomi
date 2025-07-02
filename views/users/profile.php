@@ -1,5 +1,4 @@
 ﻿<?php 
-// SOLUÇÃO DEFINITIVA: Include com fallbacks
 if (file_exists('../views/layout/header.php')) {
     include '../views/layout/header.php';
 } elseif (file_exists('../../views/layout/header.php')) {
@@ -152,7 +151,7 @@ if (file_exists('../views/layout/header.php')) {
                                class="form-control" required>
                     </div>
                     
-                    <button type="submit" class="btn btn-warning btn-sm">Alterar Senha</button>
+                    <button type="submit" class="btn btn-primary">Alterar Senha</button>
                 </form>
             </div>
         </div>
@@ -217,137 +216,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-.profile-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.profile-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.profile-header h2 {
-    color: #333;
-    margin: 0;
-}
-
-.profile-content {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 30px;
-    align-items: start;
-}
-
-.profile-form {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.profile-info {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.info-card {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.info-card h3 {
-    margin: 0 0 15px 0;
-    color: #333;
-    font-size: 18px;
-}
-
-.info-card p {
-    margin: 0 0 10px 0;
-    color: #666;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #333;
-}
-
-.form-control {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    box-sizing: border-box;
-}
-
-.form-control:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-.form-actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 30px;
-}
-
-.btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    font-weight: bold;
-    text-align: center;
-    transition: background-color 0.3s;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: #545b62;
-}
-
-.btn-warning {
-    background-color: #ffc107;
-    color: #212529;
-}
-
-.btn-warning:hover {
-    background-color: #e0a800;
-}
-
-.btn-sm {
-    padding: 8px 16px;
-    font-size: 12px;
-}
-
 .alert {
     padding: 15px;
     border-radius: 4px;
@@ -358,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
     background: #d1e7dd;
     color: #0f5132;
     border: 1px solid #badbcc;
-}
+} */
 
 .alert-error {
     background: #f8d7da;

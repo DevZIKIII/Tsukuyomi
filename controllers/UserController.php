@@ -13,12 +13,12 @@ class UserController {
     
     // Show login form
     public function login() {
-        include '../views/auth/login.php';
+        include '../views/users/login.php';
     }
     
     // Show register form
     public function register() {
-        include '../views/auth/register.php';
+        include '../views/users/register.php';
     }
     
     // Authenticate user

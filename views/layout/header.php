@@ -17,11 +17,9 @@
     <header>
         <nav>
             <div class="container nav-container">
-                <a href="/tsukuyomitest/public/index.php" class="logo">Tsukuyomi</a>
+                <a href="/tsukuyomi/public/index.php" class="logo">Tsukuyomi</a>
                 
                 <ul class="nav-links">
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="index.php?action=products">Produtos</a></li>
                     <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
                         <li><a href="index.php?action=create_product">Adicionar Produto</a></li>
                         <li><a href="index.php?action=users">Usuários</a></li>
@@ -31,13 +29,13 @@
                 </ul>
                 
                 <div class="nav-actions">
-                    <form class="search-form" method="GET" action="/tsukuyomitest/public/index.php">
+                    <form class="search-form" method="GET" action="/tsukuyomi/public/index.php">
                         <input type="hidden" name="action" value="search">
                         <input type="text" name="q" placeholder="Buscar..." class="search-input">
                     </form>
                     
                     <?php if(isset($_SESSION['user_id'])): ?>
-                        <a href="/tsukuyomitest/public/index.php?action=cart" class="btn btn-secondary btn-sm">
+                        <a href="/tsukuyomi/public/index.php?action=cart" class="btn btn-secondary btn-sm">
                             Carrinho
                             <?php if(isset($_SESSION['cart_count']) && $_SESSION['cart_count'] > 0): ?>
                                 <span class="cart-badge"><?php echo $_SESSION['cart_count']; ?></span>
@@ -46,16 +44,16 @@
                         
                         <div class="user-menu">
                             <span>Olá, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
-                            <a href="/tsukuyomitest/public/index.php?action=profile">Perfil</a>
-                            <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
-                                <a href="/tsukuyomitest/public/index.php?action=users">Usuários</a>
-                            <?php endif; ?>
-                            <a href="/tsukuyomitest/public/index.php?action=orders">Pedidos</a>
-                            <a href="/tsukuyomitest/public/index.php?action=logout">Sair</a>
+                            <a href="/tsukuyomi/public/index.php?action=profile">Perfil</a>
+                            <!-- <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
+                                <a href="/tsukuyomi/public/index.php?action=users">Usuários</a>
+                            <?php endif; ?> -->
+                            <a href="/tsukuyomi/public/index.php?action=orders">Pedidos</a>
+                            <a href="/tsukuyomi/public/index.php?action=logout">Sair</a>
                         </div>
                     <?php else: ?>
-                        <a href="/tsukuyomitest/public/index.php?action=login" class="btn btn-secondary btn-sm">Login</a>
-                        <a href="/tsukuyomitest/public/index.php?action=register" class="btn btn-primary btn-sm">Cadastrar</a>
+                        <a href="/tsukuyomi/public/index.php?action=login" class="btn btn-secondary btn-sm">Login</a>
+                        <a href="/tsukuyomi/public/index.php?action=register" class="btn btn-primary btn-sm">Cadastrar</a>
                     <?php endif; ?>
                     
                     <button class="menu-toggle">☰</button>

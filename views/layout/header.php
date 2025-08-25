@@ -17,8 +17,7 @@
     <header>
         <nav>
             <div class="container nav-container">
-                <a href="/tsukuyomi/public/index.php" class="logo">Tsukuyomi</a>
-                
+                <a href="/tsukuyomi/public/index.php" class="logo" style="width: 300px; height: 100px;"><img src="../public/images/logo2.0.png" style="width: 250px; height: 250px; margin-top: -3em;"></a>                
                 <ul class="nav-links">
                     <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
                         <li><a href="index.php?action=create_product">Adicionar Produto</a></li>

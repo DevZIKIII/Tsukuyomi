@@ -25,6 +25,13 @@ class ProductController {
         $product->id = $id;
         $product->readOne();
         
+        // Verificar se o produto foi encontrado
+        if(!$product->name) {
+            $_SESSION['error'] = "Produto não encontrado.";
+            header('Location: index.php?action=products');
+            exit();
+        }
+        
         include '../views/products/show.php';
     }
     
@@ -64,6 +71,13 @@ class ProductController {
         $product = $this->productFactory->createModel();
         $product->id = $id;
         $product->readOne();
+        
+        // Verificar se o produto foi encontrado
+        if(!$product->name) {
+            $_SESSION['error'] = "Produto não encontrado.";
+            header('Location: index.php?action=products');
+            exit();
+        }
         
         include '../views/products/edit.php';
     }

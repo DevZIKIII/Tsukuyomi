@@ -3,34 +3,34 @@
 <div class="product-detail">
     <div class="product-detail-container">
         <div class="product-detail-image">
-            <!-- Imagem aqui - <?php echo $this->product->name; ?> -->
-            <img src="<?php echo BASE_URL; ?>images/products/<?php echo $this->product->image_url; ?>"
-                alt="<?php echo $this->product->name; ?>"
+            <!-- Imagem aqui - <?php echo $product->name; ?> -->
+            <img src="<?php echo BASE_URL; ?>images/products/<?php echo $product->image_url; ?>"
+                alt="<?php echo $product->name; ?>"
                 onerror="this.src='<?php echo BASE_URL; ?>images/placeholder.jpg'">
         </div>
         
         <div class="product-detail-info">
-            <div class="product-category"><?php echo $this->product->category; ?></div>
-            <h1><?php echo $this->product->name; ?></h1>
+            <div class="product-category"><?php echo $product->category; ?></div>
+            <h1><?php echo $product->name; ?></h1>
             
-            <div class="product-price">R$ <?php echo number_format($this->product->price, 2, ',', '.'); ?></div>
+            <div class="product-price">R$ <?php echo number_format($product->price, 2, ',', '.'); ?></div>
             
             <div class="product-description">
                 <h3>Descrição</h3>
-                <p><?php echo nl2br($this->product->description); ?></p>
+                <p><?php echo nl2br($product->description); ?></p>
             </div>
             
             <div class="product-details">
-                <p><strong>Tamanho:</strong> <?php echo $this->product->size; ?></p>
-                <p><strong>Estoque:</strong> <?php echo $this->product->stock_quantity; ?> unidades</p>
+                <p><strong>Tamanho:</strong> <?php echo $product->size; ?></p>
+                <p><strong>Estoque:</strong> <?php echo $product->stock_quantity; ?> unidades</p>
             </div>
             
-            <?php if($this->product->stock_quantity > 0): ?>
+            <?php if($product->stock_quantity > 0): ?>
                 <div class="product-actions">
-                    <form onsubmit="event.preventDefault(); addToCart(<?php echo $this->product->id; ?>);">
+                    <form onsubmit="event.preventDefault(); addToCart(<?php echo $product->id; ?>);">
                         <label for="quantity">Quantidade:</label>
                         <input type="number" id="quantity" name="quantity" value="1" min="1" 
-                               max="<?php echo $this->product->stock_quantity; ?>" class="quantity-input">
+                               max="<?php echo $product->stock_quantity; ?>" class="quantity-input">
                         <button type="submit" class="btn btn-primary">Adicionar ao Carrinho</button>
                     </form>
                 </div>
@@ -40,9 +40,9 @@
             
             <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
                 <div class="admin-actions">
-                    <a href="/tsukuyomi/public/index.php?action=edit_product&id=<?php echo $this->product->id; ?>" 
+                    <a href="/tsukuyomi/public/index.php?action=edit_product&id=<?php echo $product->id; ?>" 
                        class="btn btn-secondary">Editar Produto</a>
-                    <a href="/tsukuyomi/public/index.php?action=delete_product&id=<?php echo $this->product->id; ?>" 
+                    <a href="/tsukuyomi/public/index.php?action=delete_product&id=<?php echo $product->id; ?>" 
                        class="btn btn-danger" 
                        onclick="return confirm('Tem certeza que deseja excluir este produto?')">Excluir Produto</a>
                 </div>

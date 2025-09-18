@@ -1,32 +1,8 @@
-<?php 
-// SOLUÇÃO DEFINITIVA: Testamos vários caminhos possíveis
-// Substitua as duas linhas abaixo pelos caminhos corretos da sua estrutura
-
-// OPÇÃO 1: Se header.php está em views/layout/
-if (file_exists('../../../views/layout/header.php')) {
-    include '../../../views/layout/header.php';
-} 
-// OPÇÃO 2: Se header.php está em views/
-elseif (file_exists('../../header.php')) {
-    include '../../header.php';
-}
-// OPÇÃO 3: Se header.php está na pasta layout dentro de views/
-elseif (file_exists('../../layout/header.php')) {
-    include '../../layout/header.php';
-}
-// OPÇÃO 4: Se header.php está em uma pasta diferente
-elseif (file_exists('../../../layout/header.php')) {
-    include '../../../layout/header.php';
-}
-// OPÇÃO 5: Usando caminho absoluto
-else {
-    include $_SERVER['DOCUMENT_ROOT'] . '/tsukuyomi/views/layout/header.php';
-}
-?>
+<?php include '../views/layout/header.php'; ?>
 
 <div class="admin-container">
     <div class="admin-header">
-        <h2>Todos os Pedidos</h2>
+        <h1>Todos os Pedidos</h1>
         <div class="admin-stats">
             <div class="stat-card">
                 <h3>Total de Pedidos</h3>
@@ -34,7 +10,7 @@ else {
             </div>
             <div class="stat-card">
                 <h3>Valor Total</h3>
-                <p>R$ <?php 
+                <p>R$ <?php
                     $total = 0;
                     foreach($orders as $order) {
                         $total += $order['total_amount'];
@@ -51,40 +27,15 @@ else {
         </div>
     <?php endif; ?>
 
-    <?php if(isset($_SESSION['error'])): ?>
-        <div class="alert alert-error">
-            <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
-        </div>
-    <?php endif; ?>
-
-    <div class="orders-filter">
-        <form method="GET" action="/tsukuyomi/public/index.php">
-            <input type="hidden" name="action" value="all_orders">
-            <div class="filter-group">
-                <label for="status">Filtrar por Status:</label>
-                <select name="status" id="status" onchange="this.form.submit()">
-                    <option value="">Todos os Status</option>
-                    <option value="pending" <?php echo (isset($_GET['status']) && $_GET['status'] == 'pending') ? 'selected' : ''; ?>>Pendente</option>
-                    <option value="processing" <?php echo (isset($_GET['status']) && $_GET['status'] == 'processing') ? 'selected' : ''; ?>>Processando</option>
-                    <option value="shipped" <?php echo (isset($_GET['status']) && $_GET['status'] == 'shipped') ? 'selected' : ''; ?>>Enviado</option>
-                    <option value="delivered" <?php echo (isset($_GET['status']) && $_GET['status'] == 'delivered') ? 'selected' : ''; ?>>Entregue</option>
-                    <option value="cancelled" <?php echo (isset($_GET['status']) && $_GET['status'] == 'cancelled') ? 'selected' : ''; ?>>Cancelado</option>
-                </select>
-            </div>
-        </form>
-    </div>
-
     <div class="table-container">
-        <table class="admin-table">
+        <table class="data-table">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Pedido #</th>
                     <th>Cliente</th>
-                    <th>Email</th>
-                    <th>Total</th>
-                    <th>Pagamento</th>
-                    <th>Status</th>
                     <th>Data</th>
+                    <th>Total</th>
+                    <th>Status</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -92,68 +43,40 @@ else {
                 <?php if(!empty($orders)): ?>
                     <?php foreach($orders as $order): ?>
                         <tr>
-                            <td>#<?php echo $order['id']; ?></td>
-                            <td><?php echo htmlspecialchars($order['user_name'] ?? 'N/A'); ?></td>
-                            <td><?php echo htmlspecialchars($order['user_email'] ?? 'N/A'); ?></td>
-                            <td>R$ <?php echo number_format($order['total_amount'], 2, ',', '.'); ?></td>
+                            <td><strong>#<?php echo $order['id']; ?></strong></td>
                             <td>
-                                <span class="payment-method">
-                                    <?php 
-                                    $methods = [
-                                        'credit_card' => 'Cartão de Crédito',
-                                        'debit_card' => 'Cartão de Débito',
-                                        'pix' => 'PIX',
-                                        'bank_slip' => 'Boleto'
-                                    ];
-                                    echo $methods[$order['payment_method']] ?? $order['payment_method'];
-                                    ?>
-                                </span>
-                            </td>
-                            <td>
-                                <span class="status status-<?php echo $order['status']; ?>">
-                                    <?php 
-                                    $statusLabels = [
-                                        'pending' => 'Pendente',
-                                        'processing' => 'Processando',
-                                        'shipped' => 'Enviado',
-                                        'delivered' => 'Entregue',
-                                        'cancelled' => 'Cancelado'
-                                    ];
-                                    echo $statusLabels[$order['status']] ?? $order['status'];
-                                    ?>
-                                </span>
+                                <div><?php echo htmlspecialchars($order['user_name'] ?? 'N/A'); ?></div>
+                                <small><?php echo htmlspecialchars($order['user_email'] ?? 'N/A'); ?></small>
                             </td>
                             <td><?php echo date('d/m/Y H:i', strtotime($order['created_at'])); ?></td>
-                            <td class="actions">
-                                <a href="/tsukuyomi/public/index.php?action=order&id=<?php echo $order['id']; ?>" 
-                                   class="btn btn-sm btn-primary">Ver Detalhes</a>
-                                
-                                <?php if($order['status'] !== 'delivered' && $order['status'] !== 'cancelled'): ?>
-                                    <div class="status-update">
-                                        <form method="POST" action="/tsukuyomi/public/index.php?action=update_order_status" 
-                                              style="display: inline;">
-                                            <input type="hidden" name="order_id" value="<?php echo $order['id']; ?>">
-                                            <select name="status" onchange="this.form.submit()" class="status-select">
-                                                <option value="">Alterar Status</option>
-                                                <?php if($order['status'] == 'pending'): ?>
-                                                    <option value="processing">Processar</option>
-                                                    <option value="cancelled">Cancelar</option>
-                                                <?php elseif($order['status'] == 'processing'): ?>
-                                                    <option value="shipped">Enviar</option>
-                                                    <option value="cancelled">Cancelar</option>
-                                                <?php elseif($order['status'] == 'shipped'): ?>
-                                                    <option value="delivered">Entregar</option>
-                                                <?php endif; ?>
-                                            </select>
-                                        </form>
-                                    </div>
-                                <?php endif; ?>
+                            <td><strong>R$ <?php echo number_format($order['total_amount'], 2, ',', '.'); ?></strong></td>
+                            <td>
+                                <?php
+                                $status_class = '';
+                                $status_text = '';
+                                switch($order['status']) {
+                                    case 'pending': $status_class = 'badge-warning'; $status_text = 'Pendente'; break;
+                                    case 'processing': $status_class = 'badge-info'; $status_text = 'Processando'; break;
+                                    case 'shipped': $status_class = 'badge-primary'; $status_text = 'Enviado'; break;
+                                    case 'delivered': $status_class = 'badge-success'; $status_text = 'Entregue'; break;
+                                    case 'cancelled': $status_class = 'badge-danger'; $status_text = 'Cancelado'; break;
+                                }
+                                ?>
+                                <span class="badge <?php echo $status_class; ?>">
+                                    <?php echo $status_text; ?>
+                                </span>
+                            </td>
+                            <td>
+                                <a href="index.php?action=order&id=<?php echo $order['id']; ?>"
+                                   class="btn btn-sm btn-primary">
+                                    Ver Detalhes
+                                </a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="8" class="no-data">Nenhum pedido encontrado.</td>
+                        <td colspan="6" class="text-center">Nenhum pedido encontrado.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
@@ -162,251 +85,10 @@ else {
 </div>
 
 <style>
-.admin-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-}
-
-.admin-header h2 {
-    color: #333;
-    margin: 0;
-}
-
-.admin-stats {
-    display: flex;
-    gap: 20px;
-}
-
-.stat-card {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-    min-width: 120px;
-    border: 1px solid #dee2e6;
-}
-
-.stat-card h3 {
-    font-size: 14px;
-    color: #666;
-    margin: 0 0 10px 0;
-}
-
-.stat-card p {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-    margin: 0;
-}
-
-.orders-filter {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.filter-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.filter-group label {
-    font-weight: bold;
-    color: #333;
-}
-
-.filter-group select {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.table-container {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.admin-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.admin-table th,
-.admin-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #dee2e6;
-    color: black;
-}
-
-.admin-table th {
-    background: #f8f9fa;
-    font-weight: bold;
-    color: #333;
-}
-
-.admin-table tr:hover {
-    background: #f8f9fa;
-}
-
-.status {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.status-pending {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.status-processing {
-    background: #d1ecf1;
-    color: #0c5460;
-}
-
-.status-shipped {
-    background: #d4edda;
-    color: #155724;
-}
-
-.status-delivered {
-    background: #d1e7dd;
-    color: #0f5132;
-}
-
-.status-cancelled {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.payment-method {
-    padding: 2px 6px;
-    background: #e9ecef;
-    border-radius: 4px;
-    font-size: 12px;
-}
-
-.actions {
-    white-space: nowrap;
-}
-
-.btn {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 12px;
-    cursor: pointer;
-    margin-right: 5px;
-}
-
-.btn-sm {
-    padding: 4px 8px;
-    font-size: 11px;
-}
-
-.btn-primary {
-    background: #007bff;
-    color: white;
-}
-
-.btn-primary:hover {
-    background: #0056b3;
-}
-
-.status-select {
-    padding: 4px;
-    font-size: 11px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-top: 5px;
-}
-
-.alert {
-    padding: 12px;
-    border-radius: 4px;
-    margin-bottom: 20px;
-}
-
-.alert-success {
-    background: #d1e7dd;
-    color: #0f5132;
-    border: 1px solid #badbcc;
-}
-
-.alert-error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c2c7;
-}
-
-.no-data {
-    text-align: center;
-    color: #666;
-    font-style: italic;
-    padding: 40px;
-}
-
-@media (max-width: 768px) {
-    .admin-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .admin-stats {
-        width: 100%;
-        justify-content: space-between;
-        margin-top: 15px;
-    }
-    
-    .table-container {
-        overflow-x: auto;
-    }
-    
-    .admin-table {
-        min-width: 800px;
-    }
-}
+/* Estilos importados de /views/orders/show.php */
+.admin-container{max-width:1200px;margin:2rem auto;padding:0 1rem}.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}.admin-header h1{font-size:2rem;background:linear-gradient(135deg,var(--text-primary) 0%,var(--primary-color) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:0}.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:2rem;margin-bottom:3rem}.info-card{background:linear-gradient(135deg,var(--surface-color) 0%,rgba(139,92,246,.05) 100%);padding:2rem;border-radius:var(--border-radius-xl);border:1px solid rgba(139,92,246,.2);box-shadow:var(--shadow-lg)}.info-card h3{color:var(--primary-color);margin-bottom:1.5rem;font-size:1.25rem;position:relative;padding-bottom:.75rem}.info-card h3::after{content:'';position:absolute;bottom:0;left:0;width:50px;height:2px;background:var(--primary-color);border-radius:1px}.info-item{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;padding:.75rem 0;border-bottom:1px solid rgba(139,92,246,.1)}.info-item:last-child{border-bottom:none;margin-bottom:0}.info-label{color:var(--text-secondary);font-weight:500;flex-shrink:0}.info-value{color:var(--text-primary);text-align:right;flex:1;margin-left:1rem}.info-highlight{font-size:1.25rem;font-weight:700;color:var(--primary-color)}.section-container{background:linear-gradient(135deg,var(--surface-color) 0%,rgba(139,92,246,.05) 100%);padding:2rem;border-radius:var(--border-radius-xl);border:1px solid rgba(139,92,246,.2);box-shadow:var(--shadow-lg);margin-bottom:2rem}.section-container h2{color:var(--primary-color);margin-bottom:1.5rem;font-size:1.5rem}.table-container{overflow-x:auto}.data-table{width:100%;border-collapse:collapse}.data-table th,.data-table td{padding:1.5rem;text-align:left;border-bottom:1px solid rgba(139,92,246,.1)}.data-table th{background:linear-gradient(135deg,rgba(139,92,246,.1) 0%,rgba(139,92,246,.05) 100%);font-weight:700;color:var(--primary-color);text-transform:uppercase;letter-spacing:.05em;font-size:.875rem}.data-table td{color:var(--text-primary)}.data-table tfoot td{padding-top:1.5rem;font-size:1.1rem;border-top:2px solid rgba(139,92,246,.2)}.text-right{text-align:right}.total-value{color:var(--primary-color);font-size:1.25rem}.product-info{display:flex;align-items:center;gap:1rem}.product-thumb{width:50px;height:50px;object-fit:cover;border-radius:var(--border-radius-md)}.badge{display:inline-block;padding:.5rem 1rem;border-radius:50px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.badge-success{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;box-shadow:0 4px 12px rgba(34,197,94,.3)}.badge-warning{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#78350f;box-shadow:0 4px 12px rgba(251,191,36,.3)}.badge-info{background:linear-gradient(135deg,#60a5fa,#3b82f6);color:#fff;box-shadow:0 4px 12px rgba(96,165,250,.3)}.badge-primary{background:linear-gradient(135deg,#a78bfa,#8b5cf6);color:#fff;box-shadow:0 4px 12px rgba(167,139,250,.3)}.badge-danger{background:linear-gradient(135deg,#f87171,#ef4444);color:#fff;box-shadow:0 4px 12px rgba(248,113,113,.3)}.admin-actions-card{background:rgba(139,92,246,.05);padding:1.5rem;border-radius:var(--border-radius-lg);border:1px solid rgba(139,92,246,.2)}.status-update-form .form-group{margin:0}.status-update-form label{display:block;margin-bottom:1rem;color:var(--text-primary);font-weight:600}.status-update-group{display:flex;gap:1rem;align-items:center}.form-control{flex:1;padding:.875rem 1.25rem;background:rgba(15,15,15,.8);border:2px solid var(--border-color);border-radius:var(--border-radius-lg);color:var(--text-primary);font-size:1rem}.form-control:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 4px rgba(139,92,246,.1)}.alert{padding:1.5rem 2rem;border-radius:var(--border-radius-lg);margin-bottom:2rem;border:1px solid;position:relative;overflow:hidden}.alert::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:currentColor}.alert-success{background:rgba(34,197,94,.1);border-color:var(--success-color);color:var(--success-color)}.alert-error{background:rgba(239,68,68,.1);border-color:var(--error-color);color:var(--error-color)}@media (max-width:768px){.admin-header{flex-direction:column;align-items:flex-start}.info-grid{grid-template-columns:1fr;gap:1.5rem}.info-item{flex-direction:column;align-items:flex-start}.info-value{text-align:left;margin-left:0;margin-top:.5rem}.table-container{overflow-x:auto}.data-table{min-width:600px}.data-table th,.data-table td{padding:1rem;font-size:.875rem}.status-update-group{flex-direction:column}.form-control{width:100%}.product-info{flex-direction:column;align-items:flex-start;text-align:center}.product-thumb{width:80px;height:80px}}@media (max-width:480px){.admin-container{padding:0 .5rem}.section-container,.info-card{padding:1.5rem}.admin-header h1{font-size:1.5rem}.section-container h2{font-size:1.25rem}}
+/* Estilos adicionais para admin/orders/index.php */
+.admin-stats{display:flex;gap:1.5rem}.stat-card{background:linear-gradient(135deg,var(--surface-color) 0%,rgba(139,92,246,.05) 100%);padding:1.5rem;border-radius:var(--border-radius-lg);border:1px solid rgba(139,92,246,.2);min-width:150px;text-align:center}.stat-card h3{font-size:.875rem;color:var(--text-secondary);margin-bottom:.5rem;font-weight:500}.stat-card p{font-size:1.5rem;font-weight:700;color:var(--primary-color);margin:0}
 </style>
 
-<?php 
-// SOLUÇÃO DEFINITIVA: Testamos vários caminhos possíveis para o footer
-// Substitua a linha abaixo pelo caminho correto da sua estrutura
-
-// OPÇÃO 1: Se footer.php está em views/layout/
-if (file_exists('../../../views/layout/footer.php')) {
-    include '../../../views/layout/footer.php';
-} 
-// OPÇÃO 2: Se footer.php está em views/
-elseif (file_exists('../../footer.php')) {
-    include '../../footer.php';
-}
-// OPÇÃO 3: Se footer.php está na pasta layout dentro de views/
-elseif (file_exists('../../layout/footer.php')) {
-    include '../../layout/footer.php';
-}
-// OPÇÃO 4: Se footer.php está em uma pasta diferente
-elseif (file_exists('../../../layout/footer.php')) {
-    include '../../../layout/footer.php';
-}
-// OPÇÃO 5: Usando caminho absoluto
-else {
-    include $_SERVER['DOCUMENT_ROOT'] . '/tsukuyomi/views/layout/footer.php';
-}
-?>
+<?php include '../views/layout/footer.php'; ?>

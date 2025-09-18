@@ -1,4 +1,4 @@
-﻿<?php 
+<?php 
 if (file_exists('../views/layout/header.php')) {
     include '../views/layout/header.php';
 } elseif (file_exists('../../views/layout/header.php')) {
@@ -8,9 +8,9 @@ if (file_exists('../views/layout/header.php')) {
 }
 ?>
 
-<div class="profile-container">
+<div class="profile-container fade-in">
     <div class="profile-header">
-        <h2>Meu Perfil</h2>
+        <h2>👤 Meu Perfil</h2>
     </div>
 
     <?php if(isset($_SESSION['message'])): ?>
@@ -29,39 +29,39 @@ if (file_exists('../views/layout/header.php')) {
         <div class="profile-form">
             <form action="/tsukuyomi/public/index.php?action=update_profile" method="POST">
                 <div class="form-group">
-                    <label for="name">Nome Completo *</label>
+                    <label for="name">👤 Nome Completo *</label>
                     <input type="text" id="name" name="name" class="form-control" 
                            value="<?php echo htmlspecialchars($user->name ?? ''); ?>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="email">Email *</label>
+                    <label for="email">📧 Email *</label>
                     <input type="email" id="email" name="email" class="form-control" 
                            value="<?php echo htmlspecialchars($user->email ?? ''); ?>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="phone">Telefone</label>
+                    <label for="phone">📱 Telefone</label>
                     <input type="text" id="phone" name="phone" class="form-control" 
                            value="<?php echo htmlspecialchars($user->phone ?? ''); ?>"
                            placeholder="(11) 99999-9999">
                 </div>
                 
                 <div class="form-group">
-                    <label for="address">Endereço</label>
+                    <label for="address">🏠 Endereço</label>
                     <input type="text" id="address" name="address" class="form-control" 
                            value="<?php echo htmlspecialchars($user->address ?? ''); ?>"
                            placeholder="Rua, número, complemento">
                 </div>
                 
                 <div class="form-group">
-                    <label for="city">Cidade</label>
+                    <label for="city">🏙️ Cidade</label>
                     <input type="text" id="city" name="city" class="form-control" 
                            value="<?php echo htmlspecialchars($user->city ?? ''); ?>">
                 </div>
                 
                 <div class="form-group">
-                    <label for="state">Estado</label>
+                    <label for="state">🗺️ Estado</label>
                     <select id="state" name="state" class="form-control">
                         <option value="">Selecione o estado</option>
                         <?php 
@@ -106,52 +106,52 @@ if (file_exists('../views/layout/header.php')) {
                 </div>
                 
                 <div class="form-group">
-                    <label for="zip_code">CEP</label>
+                    <label for="zip_code">📮 CEP</label>
                     <input type="text" id="zip_code" name="zip_code" class="form-control" 
                            value="<?php echo htmlspecialchars($user->zip_code ?? ''); ?>"
                            placeholder="00000-000">
                 </div>
                 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Atualizar Perfil</button>
-                    <a href="/tsukuyomi/public/index.php?action=orders" class="btn btn-secondary">Meus Pedidos</a>
+                    <button type="submit" class="btn btn-primary">💾 Atualizar Perfil</button>
+                    <a href="/tsukuyomi/public/index.php?action=orders" class="btn btn-secondary">📦 Meus Pedidos</a>
                 </div>
             </form>
         </div>
         
         <div class="profile-info">
             <div class="info-card">
-                <h3>Informações da Conta</h3>
-                <p><strong>Membro desde:</strong> 
+                <h3>ℹ️ Informações da Conta</h3>
+                <p><strong>📅 Membro desde:</strong> 
                    <?php echo isset($user->created_at) ? date('d/m/Y', strtotime($user->created_at)) : 'N/A'; ?>
                 </p>
-                <p><strong>Tipo de conta:</strong> 
+                <p><strong>👑 Tipo de conta:</strong> 
                    <?php echo isset($user->user_type) ? ucfirst($user->user_type) : 'Cliente'; ?>
                 </p>
             </div>
             
             <div class="info-card">
-                <h3>Alterar Senha</h3>
+                <h3>🔒 Alterar Senha</h3>
                 <form action="/tsukuyomi/public/index.php?action=change_password" method="POST">
                     <div class="form-group">
-                        <label for="current_password">Senha Atual</label>
+                        <label for="current_password">🔐 Senha Atual</label>
                         <input type="password" id="current_password" name="current_password" 
                                class="form-control" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="new_password">Nova Senha</label>
+                        <label for="new_password">🆕 Nova Senha</label>
                         <input type="password" id="new_password" name="new_password" 
                                class="form-control" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="confirm_password">Confirmar Nova Senha</label>
+                        <label for="confirm_password">✅ Confirmar Nova Senha</label>
                         <input type="password" id="confirm_password" name="confirm_password" 
                                class="form-control" required>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Alterar Senha</button>
+                    <button type="submit" class="btn btn-primary">🔒 Alterar Senha</button>
                 </form>
             </div>
         </div>

@@ -1,27 +1,29 @@
-﻿<?php include '../views/layout/header.php'; ?>
+<?php include '../views/layout/header.php'; ?>
 
-<div class="hero fade-in">
+<div class="hero scale-in">
     <h1>Tsukuyomi Streetwear</h1>
-    <p>Vista-se com o poder dos animes</p>
+    <p>✨ Vista-se com o poder dos animes ✨</p>
     <a href="#products" class="btn btn-primary">Explorar Coleção</a>
 </div>
 
-<section id="products">
+<section id="products" class="fade-in">
     <h2>Nossos Produtos</h2>
     
     <?php if(isset($keywords) && !empty($keywords)): ?>
-        <p>Resultados para: <strong><?php echo htmlspecialchars($keywords); ?></strong></p>
+        <div class="alert" style="background: rgba(139, 92, 246, 0.1); border-color: var(--primary-color); color: var(--primary-color);">
+            🔍 Resultados para: <strong><?php echo htmlspecialchars($keywords); ?></strong>
+        </div>
     <?php endif; ?>
     
     <div class="products-grid">
-        <?php foreach($products as $product): ?>
-            <div class="product-card fade-in">
+        <?php foreach($products as $index => $product): ?>
+            <div class="product-card fade-in" style="animation-delay: <?php echo $index * 0.1; ?>s;">
                 <a href="/tsukuyomi/public/index.php?action=product&id=<?php echo $product['id']; ?>">
-                    <!-- Imagem aqui - <?php echo $product['name']; ?> -->
                     <img src="<?php echo BASE_URL; ?>images/products/<?php echo $product['image_url']; ?>"
                         alt="<?php echo $product['name']; ?>"
                         class="product-image"
-                        onerror="this.src='<?php echo BASE_URL; ?>images/placeholder.jpg'">
+                        onerror="this.src='<?php echo BASE_URL; ?>images/placeholder.jpg'"
+                        loading="lazy">
                 </a>
                 
                 <div class="product-info">
@@ -31,7 +33,7 @@
                             <?php echo $product['name']; ?>
                         </a>
                     </h3>
-                    <div class="product-price">R$ <?php echo number_format($product['price'], 2, ',', '.'); ?></div>
+                    <div class="product-price">💰 R$ <?php echo number_format($product['price'], 2, ',', '.'); ?></div>
                     <div class="product-size">Tamanho: <?php echo $product['size']; ?></div>
                     
                     <?php if($product['stock_quantity'] > 0): ?>
@@ -41,7 +43,7 @@
                             </button>
                         </div>
                     <?php else: ?>
-                        <button class="btn btn-secondary" disabled>Esgotado</button>
+                        <button class="btn btn-secondary" disabled>❌ Esgotado</button>
                     <?php endif; ?>
                     
                     <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
@@ -59,7 +61,11 @@
     </div>
     
     <?php if(empty($products)): ?>
-        <p style="text-align: center; margin: 3rem 0;">Nenhum produto encontrado.</p>
+        <div class="empty-cart fade-in">
+            <h3>😔 Nenhum produto encontrado</h3>
+            <p>Tente buscar por outros termos ou explore nossa coleção completa</p>
+            <a href="/tsukuyomi/public/index.php?action=products" class="btn btn-primary">Ver Todos os Produtos</a>
+        </div>
     <?php endif; ?>
 </section>
 

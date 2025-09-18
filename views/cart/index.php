@@ -1,22 +1,22 @@
-﻿<?php include '../views/layout/header.php'; ?>
+<?php include '../views/layout/header.php'; ?>
 
-<h1>Meu Carrinho</h1>
+<h1>🛒 Meu Carrinho</h1>
 
-<div class="cart-container">
+<div class="cart-container fade-in">
     <?php if(!empty($cart_items)): ?>
         <div class="cart-items">
-            <?php foreach($cart_items as $item): ?>
-                <div class="cart-item" id="cart-item-<?php echo $item['id']; ?>">
-                    <!-- Imagem aqui - <?php echo $item['name']; ?> -->
+            <?php foreach($cart_items as $index => $item): ?>
+                <div class="cart-item slide-in-left" id="cart-item-<?php echo $item['id']; ?>" style="animation-delay: <?php echo $index * 0.1; ?>s;">
                     <img src="images/products/<?php echo $item['image_url']; ?>" 
                          alt="<?php echo $item['name']; ?>" 
                          class="cart-item-image"
-                         onerror="this.src='images/placeholder.jpg'">
+                         onerror="this.src='images/placeholder.jpg'"
+                         loading="lazy">
                     
                     <div class="cart-item-info">
                         <h3><?php echo htmlspecialchars($item['name']); ?></h3>
-                        <p>Tamanho: <?php echo $item['size']; ?></p>
-                        <p class="product-price">R$ <span class="item-price"><?php echo number_format($item['price'], 2, ',', '.'); ?></span></p>
+                        <p>📏 Tamanho: <strong><?php echo $item['size']; ?></strong></p>
+                        <p class="product-price">💰 R$ <span class="item-price"><?php echo number_format($item['price'], 2, ',', '.'); ?></span></p>
                     </div>
                     
                     <div class="cart-item-actions">
@@ -35,23 +35,23 @@
                         </div>
                         
                         <p class="item-total">
-                            Total: R$ <span id="item-total-<?php echo $item['id']; ?>"><?php echo number_format($item['price'] * $item['quantity'], 2, ',', '.'); ?></span>
+                            💳 Total: R$ <span id="item-total-<?php echo $item['id']; ?>"><?php echo number_format($item['price'] * $item['quantity'], 2, ',', '.'); ?></span>
                         </p>
                         
                         <a href="index.php?action=remove_from_cart&id=<?php echo $item['id']; ?>" 
                            class="btn btn-danger btn-sm"
-                           onclick="return confirm('Remover este item do carrinho?')">Remover</a>
+                           onclick="return confirm('Remover este item do carrinho?')">🗑️ Remover</a>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
         
-        <div class="cart-summary">
-            <h3>Resumo do Pedido</h3>
+        <div class="cart-summary slide-in-right">
+            <h3>📋 Resumo do Pedido</h3>
             
             <!-- Cupom de Desconto -->
             <div class="coupon-section">
-                <h4>Cupom de Desconto</h4>
+                <h4>🎫 Cupom de Desconto</h4>
                 <?php if(isset($_SESSION['coupon']) && $_SESSION['coupon']['valid']): ?>
                     <div class="applied-coupon">
                         <div class="coupon-info">
@@ -65,7 +65,7 @@
                         <input type="text" 
                                id="coupon_code" 
                                class="form-control" 
-                               placeholder="Digite o código do cupom"
+                               placeholder="🎟️ Digite o código do cupom"
                                style="text-transform: uppercase;">
                         <button type="button" class="btn btn-secondary" onclick="applyCoupon()">Aplicar</button>
                     </div>
@@ -75,36 +75,36 @@
             
             <div class="summary-line">
                 <span>Subtotal:</span>
-                <span id="cart-subtotal">R$ <?php echo number_format($total, 2, ',', '.'); ?></span>
+                <span id="cart-subtotal">💰 R$ <?php echo number_format($total, 2, ',', '.'); ?></span>
             </div>
             
             <?php if(isset($_SESSION['coupon']) && $_SESSION['coupon']['valid']): ?>
                 <div class="summary-line discount-line">
-                    <span>Desconto:</span>
-                    <span id="cart-discount" class="discount-value">- R$ <?php echo number_format($_SESSION['coupon']['discount_amount'], 2, ',', '.'); ?></span>
+                    <span>🎉 Desconto:</span>
+                    <span id="cart-discount" class="discount-value">-💰 R$ <?php echo number_format($_SESSION['coupon']['discount_amount'], 2, ',', '.'); ?></span>
                 </div>
             <?php endif; ?>
             
             <div class="summary-line">
-                <span>Frete:</span>
-                <span id="cart-shipping">Grátis</span>
+                <span>🚚 Frete:</span>
+                <span id="cart-shipping">✅ Grátis</span>
             </div>
             <hr>
             <div class="cart-total">
-                <span>Total:</span>
+                <span>💳 Total:</span>
                 <?php 
                 $final_total = $total;
                 if(isset($_SESSION['coupon']) && $_SESSION['coupon']['valid']) {
                     $final_total = $total - $_SESSION['coupon']['discount_amount'];
                 }
                 ?>
-                <span id="cart-total">R$ <?php echo number_format($final_total, 2, ',', '.'); ?></span>
+                <span id="cart-total">💰 R$ <?php echo number_format($final_total, 2, ',', '.'); ?></span>
             </div>
             
             <form action="index.php?action=create_order" method="POST" class="checkout-form" onsubmit="return validateCheckout()">
                 <!-- Seleção de Forma de Pagamento -->
                 <div class="form-group">
-                    <label>Forma de Pagamento</label>
+                    <label>💳 Forma de Pagamento</label>
                     <div class="payment-methods">
                         <label class="payment-option">
                             <input type="radio" name="payment_method" value="card" onclick="showPaymentForm('card')">
@@ -126,7 +126,7 @@
                 
                 <!-- Formulário de Cartão -->
                 <div id="card-form" class="payment-form" style="display: none;">
-                    <h4>Dados do Cartão</h4>
+                    <h4>💳 Dados do Cartão</h4>
                     
                     <div class="form-group">
                         <label>Tipo de Cartão</label>
@@ -201,10 +201,10 @@
                 
                 <!-- Formulário PIX -->
                 <div id="pix-form" class="payment-form" style="display: none;">
-                    <h4>Pagamento via PIX</h4>
+                    <h4>📱 Pagamento via PIX</h4>
                     <div class="pix-info">
-                        <p>Ao finalizar o pedido, você receberá um QR Code para pagamento.</p>
-                        <p>O prazo para pagamento é de 30 minutos.</p>
+                        <p>📱 Ao finalizar o pedido, você receberá um QR Code para pagamento.</p>
+                        <p>⏰ O prazo para pagamento é de 30 minutos.</p>
                         <div class="pix-benefits">
                             <span>✓ Pagamento instantâneo</span>
                             <span>✓ Sem taxas adicionais</span>
@@ -215,10 +215,10 @@
                 
                 <!-- Formulário Boleto -->
                 <div id="boleto-form" class="payment-form" style="display: none;">
-                    <h4>Pagamento via Boleto</h4>
+                    <h4>📄 Pagamento via Boleto</h4>
                     <div class="boleto-info">
-                        <p>O boleto será gerado após a confirmação do pedido.</p>
-                        <p>Prazo de pagamento: 3 dias úteis.</p>
+                        <p>📄 O boleto será gerado após a confirmação do pedido.</p>
+                        <p>⏰ Prazo de pagamento: 3 dias úteis.</p>
                         <div class="form-group">
                             <label for="boleto_cpf">CPF para emissão do boleto</label>
                             <input type="text" 
@@ -234,10 +234,10 @@
                 
                 <!-- Endereço de Entrega -->
                 <div class="shipping-section">
-                    <h4>Endereço de Entrega</h4>
+                    <h4>🏠 Endereço de Entrega</h4>
                     
                     <div class="form-group">
-                        <label for="shipping_cep">CEP</label>
+                        <label for="shipping_cep">📮 CEP</label>
                         <div class="cep-input-group">
                             <input type="text" 
                                    id="shipping_cep" 
@@ -253,7 +253,7 @@
                         </div>
                         <small class="form-text">
                             <a href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank">
-                                Não sei meu CEP
+                                🔍 Não sei meu CEP
                             </a>
                         </small>
                     </div>
@@ -366,7 +366,7 @@
                                name="save_address" 
                                value="1">
                         <label class="form-check-label" for="save_address">
-                            Salvar este endereço para próximas compras
+                            💾 Salvar este endereço para próximas compras
                         </label>
                     </div>
                     <?php endif; ?>
@@ -375,18 +375,18 @@
                     <input type="hidden" name="shipping_address" id="shipping_address_formatted">
                 </div>
                 
-                <button type="submit" class="btn btn-primary btn-block">Finalizar Pedido</button>
+                <button type="submit" class="btn btn-primary btn-block">🎉 Finalizar Pedido</button>
             </form>
             
             <div class="cart-actions">
-                <a href="index.php?action=products" class="btn btn-secondary">Continuar Comprando</a>
+                <a href="index.php?action=products" class="btn btn-secondary">🛍️ Continuar Comprando</a>
             </div>
         </div>
     <?php else: ?>
         <div class="empty-cart">
-            <h3>Seu carrinho está vazio</h3>
-            <p>Adicione alguns produtos incríveis!</p>
-            <a href="index.php?action=products" class="btn btn-primary">Ver Produtos</a>
+            <h3>🛒 Seu carrinho está vazio</h3>
+            <p>✨ Adicione alguns produtos incríveis!</p>
+            <a href="index.php?action=products" class="btn btn-primary">🛍️ Ver Produtos</a>
         </div>
     <?php endif; ?>
 </div>

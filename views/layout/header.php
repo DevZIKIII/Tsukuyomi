@@ -1,8 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#8b5cf6">
+    <meta name="description" content="Tsukuyomi - A melhor loja de streetwear geek do Brasil">
     <title>Tsukuyomi - Streetwear Geek</title>
     
     <!-- CSS com caminho absoluto -->
@@ -14,10 +16,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Skip link for accessibility -->
+    <a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
+    
     <header>
         <nav>
             <div class="container nav-container">
-                <a href="/tsukuyomi/public/index.php" class="logo" style="width: 300px; height: 100px;"><img src="../public/images/logo2.0.png" style="width: 250px; height: 250px; margin-top: -3em;"></a>                
+                <a href="/tsukuyomi/public/index.php" class="logo" style="width: 300px; height: 100px;">
+                    <img src="../public/images/logo2.0.png" 
+                         alt="Tsukuyomi Logo" 
+                         style="width: 250px; height: 250px; margin-top: -3em;"
+                         loading="eager">
+                </a>                
                 <ul class="nav-links">
                     <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
                         <li><a href="index.php?action=create_product">Adicionar Produto</a></li>
@@ -35,7 +45,7 @@
                     
                     <?php if(isset($_SESSION['user_id'])): ?>
                         <a href="/tsukuyomi/public/index.php?action=cart" class="btn btn-secondary btn-sm">
-                            Carrinho
+                            🛒 Carrinho
                             <?php if(isset($_SESSION['cart_count']) && $_SESSION['cart_count'] > 0): ?>
                                 <span class="cart-badge"><?php echo $_SESSION['cart_count']; ?></span>
                             <?php endif; ?>
@@ -63,7 +73,7 @@
         </nav>
     </header>
     
-    <main class="container">
+    <main class="container" id="main-content">
         <?php if(isset($_SESSION['message'])): ?>
             <div class="alert alert-success fade-in">
                 <?php 

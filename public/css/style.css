@@ -1,7 +1,7 @@
 /* Reset and Base Styles */
-* {
-    margin: 0;
-    padding: 0;
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
     box-sizing: border-box;
 }
 
@@ -710,6 +710,12 @@ nav {
     border: 1px solid rgba(139, 92, 246, 0.2);
     box-shadow: var(--shadow-xl);
     backdrop-filter: blur(10px);
+}
+
+.form-login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .form-group {

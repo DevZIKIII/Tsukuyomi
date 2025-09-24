@@ -19,6 +19,11 @@
             <input type="password" id="password" name="password" class="form-control" required>
             <small>Mínimo de 6 caracteres</small>
         </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Confirmar Senha *</label>
+            <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+        </div>
         
         <div class="form-group">
             <label for="phone">Telefone</label>

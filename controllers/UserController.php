@@ -44,37 +44,40 @@ class UserController {
     // Store new user
     public function store() {
         if($_POST) {
-            // Validate passwords match
-            if($_POST['password'] !== $_POST['confirm_password']) {
-                $_SESSION['error'] = "As senhas não coincidem.";
+            // 1. Validar se as senhas coincidem
+            if(!isset($_POST['password']) || !isset($_POST['confirm_password']) || $_POST['password'] !== $_POST['confirm_password']) {
+                $_SESSION['error'] = "As senhas não coincidem ou não foram fornecidas.";
                 redirectTo('register');
+                return;
             }
             
             // Usar factory para criar cliente
             $userData = [
-                'name' => $_POST['name'],
-                'email' => $_POST['email'],
+                'name' => $_POST['name'] ?? '',
+                'email' => $_POST['email'] ?? '',
                 'password' => $_POST['password'],
-                'phone' => $_POST['phone'],
-                'address' => $_POST['address'],
-                'city' => $_POST['city'],
-                'state' => $_POST['state'],
-                'zip_code' => $_POST['zip_code']
+                'phone' => $_POST['phone'] ?? null,
+                'address' => $_POST['address'] ?? null,
+                'city' => $_POST['city'] ?? null,
+                'state' => $_POST['state'] ?? null,
+                'zip_code' => $_POST['zip_code'] ?? null
             ];
             
             $user = $this->userFactory->createCustomer($userData);
             
-            // Check if email already exists
+            // 2. Checar se o e-mail já existe
             if($user->emailExists()) {
                 $_SESSION['error'] = "Este email já está cadastrado.";
                 redirectTo('register');
+                return; // Parar a execução
             }
             
+            // 3. Tentar criar o usuário
             if($user->create()) {
                 $_SESSION['message'] = "Conta criada com sucesso! Faça login.";
                 redirectTo('login');
             } else {
-                $_SESSION['error'] = "Erro ao criar conta.";
+                $_SESSION['error'] = "Erro ao criar conta. Tente novamente.";
                 redirectTo('register');
             }
         }

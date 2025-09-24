@@ -6,19 +6,13 @@
     <meta name="theme-color" content="#8b5cf6">
     <meta name="description" content="Tsukuyomi - A melhor loja de streetwear geek do Brasil">
     <title>Tsukuyomi - Streetwear Geek</title>
-    
-    <!-- CSS com caminho absoluto -->
     <link rel="stylesheet" href="css/style.css">
     
-    <!-- Fonte Google -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Skip link for accessibility -->
-    <a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
-    
     <header>
         <nav>
             <div class="container nav-container">
@@ -27,7 +21,7 @@
                          alt="Tsukuyomi Logo" 
                          style="width: 250px; height: 250px; margin-top: -3em;"
                          loading="eager">
-                </a>                
+                </a>
                 <ul class="nav-links">
                     <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
                         <li><a href="index.php?action=create_product">Adicionar Produto</a></li>
@@ -55,9 +49,6 @@
                             <span>Olá, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
                             <div class="user_action">
                                 <a href="/tsukuyomi/public/index.php?action=profile">Perfil</a>
-                                <!-- <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
-                                    <a href="/tsukuyomi/public/index.php?action=users">Usuários</a>
-                                <?php endif; ?> -->
                                 <a href="/tsukuyomi/public/index.php?action=orders">Pedidos</a>
                                 <a href="/tsukuyomi/public/index.php?action=logout">Sair</a>
                             </div>
@@ -91,3 +82,7 @@
                 ?>
             </div>
         <?php endif; ?>
+
+        </main>
+</body>
+</html>

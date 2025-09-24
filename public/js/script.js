@@ -337,26 +337,22 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Add loading states to all buttons
 document.addEventListener('DOMContentLoaded', function() {
-    const buttons = document.querySelectorAll('.btn:not([onclick])');
-    buttons.forEach(button => {
-        if (button.type === 'submit') {
-            button.addEventListener('click', function() {
-                const form = this.closest('form');
-                if (form && form.checkValidity()) {
-                    const originalText = this.innerHTML;
-                    this.innerHTML = '⏳ Processando...';
-                    this.disabled = true;
-                    
-                    // Re-enable after 5 seconds as fallback
-                    setTimeout(() => {
-                        this.innerHTML = originalText;
-                        this.disabled = false;
-                    }, 5000);
-                }
-            });
-        }
+    const allForms = document.querySelectorAll('form');
+
+    allForms.forEach(form => {
+        form.addEventListener('submit', function() {
+            // Quando o formulário começa a ser enviado,
+            // encontramos o botão de submit dentro dele.
+            const submitButton = form.querySelector('button[type="submit"]');
+            
+            if (submitButton) {
+                // Agora é seguro desabilitar o botão e mudar o texto,
+                // pois o envio do formulário já foi iniciado.
+                submitButton.disabled = true;
+                submitButton.innerHTML = '⏳ Processando...';
+            }
+        });
     });
 });
 

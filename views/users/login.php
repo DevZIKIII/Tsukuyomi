@@ -3,7 +3,7 @@
 <div class="form-container">
     <h2>Login</h2>
     
-    <form action="/tsukuyomi/public/index.php?action=authenticate" method="POST">
+    <form action="/tsukuyomi/public/index.php?action=authenticate" method="POST" class="form-login">
         <div class="form-group">
             <label for="email">Email *</label>
             <input type="email" id="email" name="email" class="form-control" required>

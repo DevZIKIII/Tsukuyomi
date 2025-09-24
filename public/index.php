@@ -1,10 +1,13 @@
 ﻿<?php
 // Iniciar sessão uma única vez no início
 session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 // Incluir configurações
 require_once '../config/config.php';
-
+require_once '../config/base.php';
 require_once '../controllers/ProductController.php';
 require_once '../controllers/UserController.php';
 require_once '../controllers/CartController.php';

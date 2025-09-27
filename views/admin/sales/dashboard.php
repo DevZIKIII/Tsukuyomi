@@ -82,13 +82,17 @@
         <!-- Gráfico de Tendência de Vendas -->
         <div class="dashboard-card chart-card">
             <h3>📊 Tendência de Vendas (Últimos 30 dias)</h3>
-            <canvas id="salesTrendChart"></canvas>
+            <div class="chart-wrapper">
+                <canvas id="salesTrendChart"></canvas>
+            </div>
         </div>
 
         <!-- Pedidos por Status -->
         <div class="dashboard-card status-card">
             <h3>📦 Pedidos por Status</h3>
-            <canvas id="orderStatusChart"></canvas>
+            <div class="chart-wrapper-small">
+                <canvas id="orderStatusChart"></canvas>
+            </div>
             <div class="status-legend">
                 <?php foreach($ordersByStatus as $status): ?>
                     <div class="status-item">
@@ -316,6 +320,20 @@
     font-size: 1.25rem;
 }
 
+/* Chart Wrappers - IMPORTANTE: Define altura fixa para os gráficos */
+.chart-wrapper {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.chart-wrapper-small {
+    position: relative;
+    height: 200px;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
 /* Top Products */
 .top-products {
     display: flex;
@@ -461,6 +479,17 @@
     border-radius: var(--border-radius-sm);
 }
 
+/* Scrollbar para tabelas com overflow */
+.recent-orders {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.low-stock-products {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
 @media (max-width: 1024px) {
     .dashboard-grid {
         grid-template-columns: 1fr;
@@ -481,96 +510,107 @@
     .product-rank {
         flex-wrap: wrap;
     }
+    
+    .chart-wrapper {
+        height: 250px;
+    }
+    
+    .chart-wrapper-small {
+        height: 150px;
+    }
 }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Preparar dados para o gráfico de tendência
-const salesTrendData = <?php echo json_encode($salesTrend); ?>;
-const trendLabels = salesTrendData.map(item => {
-    const date = new Date(item.date);
-    return date.getDate() + '/' + (date.getMonth() + 1);
-});
-const trendRevenue = salesTrendData.map(item => parseFloat(item.revenue));
+// Aguardar o DOM carregar completamente
+document.addEventListener('DOMContentLoaded', function() {
+    // Preparar dados para o gráfico de tendência
+    const salesTrendData = <?php echo json_encode($salesTrend); ?>;
+    const trendLabels = salesTrendData.map(item => {
+        const date = new Date(item.date);
+        return date.getDate() + '/' + (date.getMonth() + 1);
+    });
+    const trendRevenue = salesTrendData.map(item => parseFloat(item.revenue));
 
-// Gráfico de Tendência de Vendas
-const trendCtx = document.getElementById('salesTrendChart').getContext('2d');
-new Chart(trendCtx, {
-    type: 'line',
-    data: {
-        labels: trendLabels,
-        datasets: [{
-            label: 'Receita',
-            data: trendRevenue,
-            borderColor: '#8b5cf6',
-            backgroundColor: 'rgba(139, 92, 246, 0.1)',
-            tension: 0.4,
-            fill: true
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
-            }
+    // Gráfico de Tendência de Vendas
+    const trendCtx = document.getElementById('salesTrendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: trendLabels,
+            datasets: [{
+                label: 'Receita',
+                data: trendRevenue,
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
         },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return 'R$ ' + value.toLocaleString('pt-BR');
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'R$ ' + value.toLocaleString('pt-BR');
+                        }
                     }
                 }
             }
         }
-    }
-});
+    });
 
-// Preparar dados para o gráfico de status
-const orderStatusData = <?php echo json_encode($ordersByStatus); ?>;
-const statusLabels = orderStatusData.map(item => {
-    const labels = {
-        'pending': 'Pendente',
-        'processing': 'Processando',
-        'shipped': 'Enviado',
-        'delivered': 'Entregue',
-        'cancelled': 'Cancelado'
-    };
-    return labels[item.status] || item.status;
-});
-const statusCounts = orderStatusData.map(item => item.count);
+    // Preparar dados para o gráfico de status
+    const orderStatusData = <?php echo json_encode($ordersByStatus); ?>;
+    const statusLabels = orderStatusData.map(item => {
+        const labels = {
+            'pending': 'Pendente',
+            'processing': 'Processando',
+            'shipped': 'Enviado',
+            'delivered': 'Entregue',
+            'cancelled': 'Cancelado'
+        };
+        return labels[item.status] || item.status;
+    });
+    const statusCounts = orderStatusData.map(item => item.count);
 
-// Gráfico de Pedidos por Status
-const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
-new Chart(statusCtx, {
-    type: 'doughnut',
-    data: {
-        labels: statusLabels,
-        datasets: [{
-            data: statusCounts,
-            backgroundColor: [
-                'rgba(251, 191, 36, 0.8)',
-                'rgba(96, 165, 250, 0.8)',
-                'rgba(167, 139, 250, 0.8)',
-                'rgba(52, 211, 153, 0.8)',
-                'rgba(248, 113, 113, 0.8)'
-            ],
-            borderWidth: 0
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
+    // Gráfico de Pedidos por Status
+    const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusCounts,
+                backgroundColor: [
+                    'rgba(251, 191, 36, 0.8)',
+                    'rgba(96, 165, 250, 0.8)',
+                    'rgba(167, 139, 250, 0.8)',
+                    'rgba(52, 211, 153, 0.8)',
+                    'rgba(248, 113, 113, 0.8)'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
             }
         }
-    }
+    });
 });
 </script>
 

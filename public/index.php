@@ -209,5 +209,36 @@ switch($action) {
         $controller = new OrderController();
         $controller->allOrders();
         break;    
+    
+    case 'export':
+    require_once '../controllers/ExportController.php';
+    $controller = new ExportController();
+    $controller->index();
+    break;
+
+    case 'export_data':
+        require_once '../controllers/ExportController.php';
+        $controller = new ExportController();
+        $controller->process();
+        break;
+
+    case 'sales_report':
+        require_once '../controllers/ExportController.php';
+        $controller = new ExportController();
+        $controller->salesReport();
+        break;
+
+    // Sales Dashboard route (para módulo de vendas melhorado)
+    case 'sales_dashboard':
+        require_once '../controllers/SalesController.php';
+        $controller = new SalesController();
+        $controller->dashboard();
+        break;
+
+    case 'sales_analytics':
+        require_once '../controllers/SalesController.php';
+        $controller = new SalesController();
+        $controller->analytics();
+        break;
 }
 ?>

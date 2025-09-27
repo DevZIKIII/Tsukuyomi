@@ -24,10 +24,13 @@
                 </a>
                 <ul class="nav-links">
                     <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
-                        <li><a href="index.php?action=create_product">Adicionar Produto</a></li>
-                        <li><a href="index.php?action=users">Usuários</a></li>
-                        <li><a href="index.php?action=coupons">Cupons</a></li>
-                        <li><a href="index.php?action=all_orders">Pedidos</a></li>
+                        <li><a href="index.php?action=sales_dashboard">📊 Dashboard</a></li>
+                        <li><a href="index.php?action=create_product">➕ Add Produto</a></li>
+                        <li><a href="index.php?action=all_orders">📦 Pedidos</a></li>
+                        <li><a href="index.php?action=users">👥 Usuários</a></li>
+                        <li><a href="index.php?action=coupons">🎫 Cupons</a></li>
+                        <li><a href="index.php?action=export">💾 Exportar</a></li>
+                        <li><a href="index.php?action=sales_analytics">📈 Analytics</a></li>
                     <?php endif; ?>
                 </ul>
                 

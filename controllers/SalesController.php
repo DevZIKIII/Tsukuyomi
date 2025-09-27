@@ -68,6 +68,157 @@ class SalesController {
                   WHERE DATE(created_at) = CURDATE() AND status != 'cancelled'";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
+        $today = $stmt->fetch(PDO::FETCH_ASSOC);
+        $metrics['today_orders'] = $today['count'];
+        $metrics['today_revenue'] = $today['total'];
+        
+        // Vendas do mês
+        $query = "SELECT COUNT(*) as count, COALESCE(SUM(total_amount), 0) as total 
+                  FROM orders 
+                  WHERE MONTH(created_at) = MONTH(CURDATE()) 
+                  AND YEAR(created_at) = YEAR(CURDATE())
+                  AND status != 'cancelled'";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        $month = $stmt->fetch(PDO::FETCH_ASSOC);
+        $metrics['month_orders'] = $month['count'];
+        $metrics['month_revenue'] = $month['total'];
+        
+        // Comparação com mês anterior
+        $query = "SELECT COUNT(*) as count, COALESCE(SUM(total_amount), 0) as total 
+                  FROM orders 
+                  WHERE MONTH(created_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
+                  AND YEAR(created_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
+                  AND status != 'cancelled'";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        $lastMonth = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Calcular crescimento
+        if ($lastMonth['total'] > 0) {
+            $metrics['growth_rate'] = (($month['total'] - $lastMonth['total']) / $lastMonth['total']) * 100;
+        } else {
+            $metrics['growth_rate'] = 100;
+        }
+        
+        // Ticket médio
+        if ($month['count'] > 0) {
+            $metrics['avg_ticket'] = $month['total'] / $month['count'];
+        } else {
+            $metrics['avg_ticket'] = 0;
+        }
+        
+        // Total de clientes
+        $query = "SELECT COUNT(DISTINCT user_id) as count FROM orders";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        $customers = $stmt->fetch(PDO::FETCH_ASSOC);
+        $metrics['total_customers'] = $customers['count'];
+        
+        // Produtos em falta
+        $query = "SELECT COUNT(*) as count FROM products WHERE stock_quantity = 0";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        $outOfStock = $stmt->fetch(PDO::FETCH_ASSOC);
+        $metrics['out_of_stock'] = $outOfStock['count'];
+        
+        return $metrics;
+    }
+    
+    /**
+     * Obter pedidos recentes
+     */
+    private function getRecentOrders($limit = 10) {
+        $query = "SELECT o.*, u.name as customer_name 
+                  FROM orders o
+                  LEFT JOIN users u ON o.user_id = u.id
+                  ORDER BY o.created_at DESC
+                  LIMIT :limit";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Obter tendência de vendas
+     */
+    private function getSalesTrend($days = 30) {
+        $query = "SELECT 
+                    DATE(created_at) as date,
+                    COUNT(*) as orders,
+                    SUM(total_amount) as revenue
+                  FROM orders
+                  WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL :days DAY)
+                  AND status != 'cancelled'
+                  GROUP BY DATE(created_at)
+                  ORDER BY date ASC";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':days', $days, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Obter produtos mais vendidos
+     */
+    private function getTopSellingProducts($limit = 5) {
+        $query = "SELECT 
+                    p.id,
+                    p.name,
+                    p.price,
+                    p.image_url,
+                    SUM(oi.quantity) as total_sold,
+                    SUM(oi.quantity * oi.price) as revenue
+                  FROM order_items oi
+                  INNER JOIN products p ON oi.product_id = p.id
+                  INNER JOIN orders o ON oi.order_id = o.id
+                  WHERE o.status != 'cancelled'
+                  GROUP BY p.id
+                  ORDER BY total_sold DESC
+                  LIMIT :limit";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Obter produtos com estoque baixo
+     */
+    private function getLowStockProducts($threshold = 10) {
+        $query = "SELECT * FROM products 
+                  WHERE stock_quantity < :threshold 
+                  AND stock_quantity > 0
+                  ORDER BY stock_quantity ASC
+                  LIMIT 10";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':threshold', $threshold, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Obter pedidos por status
+     */
+    private function getOrdersByStatus() {
+        $query = "SELECT 
+                    status,
+                    COUNT(*) as count,
+                    SUM(total_amount) as total
+                  FROM orders
+                  GROUP BY status";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -173,7 +324,7 @@ class SalesController {
         
         // Taxa de recompra
         $query = "SELECT 
-                    COUNT(DISTINCT CASE WHEN order_count > 1 THEN user_id END) as returning,
+                    COUNT(DISTINCT CASE WHEN order_count > 1 THEN user_id END) as returning_customers,
                     COUNT(DISTINCT user_id) as total
                   FROM (
                     SELECT user_id, COUNT(*) as order_count
@@ -189,7 +340,7 @@ class SalesController {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($result['total'] > 0) {
-            $analytics['retention_rate'] = ($result['returning'] / $result['total']) * 100;
+            $analytics['retention_rate'] = ($result['returning_customers'] / $result['total']) * 100;
         } else {
             $analytics['retention_rate'] = 0;
         }
@@ -269,6 +420,148 @@ class SalesController {
         }
         
         return 0;
+    }
+    
+    /**
+     * Obter vendas por hora do dia (para análise de picos)
+     */
+    private function getSalesByHour($startDate, $endDate) {
+        $query = "SELECT 
+                    HOUR(created_at) as hour,
+                    COUNT(*) as orders,
+                    SUM(total_amount) as revenue
+                  FROM orders
+                  WHERE DATE(created_at) BETWEEN :start_date AND :end_date
+                  AND status != 'cancelled'
+                  GROUP BY HOUR(created_at)
+                  ORDER BY hour";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':start_date', $startDate);
+        $stmt->bindParam(':end_date', $endDate);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Obter estatísticas de cupons
+     */
+    public function getCouponStatistics($startDate = null, $endDate = null) {
+        $query = "SELECT 
+                    c.code,
+                    c.description,
+                    c.discount_type,
+                    c.discount_value,
+                    c.used_count,
+                    c.usage_limit,
+                    COUNT(o.id) as orders_with_coupon,
+                    SUM(o.total_amount) as total_sales_with_coupon
+                  FROM coupons c
+                  LEFT JOIN orders o ON o.id IN (
+                    SELECT order_id FROM order_coupons WHERE coupon_id = c.id
+                  )";
+        
+        if ($startDate && $endDate) {
+            $query .= " WHERE DATE(o.created_at) BETWEEN :start_date AND :end_date";
+        }
+        
+        $query .= " GROUP BY c.id
+                   ORDER BY orders_with_coupon DESC";
+        
+        $stmt = $this->db->prepare($query);
+        
+        if ($startDate && $endDate) {
+            $stmt->bindParam(':start_date', $startDate);
+            $stmt->bindParam(':end_date', $endDate);
+        }
+        
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Obter média de itens por pedido
+     */
+    private function getAverageItemsPerOrder($startDate, $endDate) {
+        $query = "SELECT 
+                    AVG(item_count) as avg_items_per_order
+                  FROM (
+                    SELECT o.id, COUNT(oi.id) as item_count
+                    FROM orders o
+                    LEFT JOIN order_items oi ON o.id = oi.order_id
+                    WHERE DATE(o.created_at) BETWEEN :start_date AND :end_date
+                    AND o.status != 'cancelled'
+                    GROUP BY o.id
+                  ) as order_items_count";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':start_date', $startDate);
+        $stmt->bindParam(':end_date', $endDate);
+        $stmt->execute();
+        
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['avg_items_per_order'] ?: 0;
+    }
+    
+    /**
+     * Obter estatísticas de cancelamento
+     */
+    private function getCancellationStats($startDate, $endDate) {
+        $query = "SELECT 
+                    COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_orders,
+                    COUNT(*) as total_orders,
+                    (COUNT(CASE WHEN status = 'cancelled' THEN 1 END) * 100.0 / COUNT(*)) as cancellation_rate,
+                    SUM(CASE WHEN status = 'cancelled' THEN total_amount ELSE 0 END) as lost_revenue
+                  FROM orders
+                  WHERE DATE(created_at) BETWEEN :start_date AND :end_date";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':start_date', $startDate);
+        $stmt->bindParam(':end_date', $endDate);
+        $stmt->execute();
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Obter previsão de vendas (baseada em média móvel simples)
+     */
+    public function getSalesForecast($days = 7) {
+        // Pegar dados dos últimos 30 dias para calcular tendência
+        $query = "SELECT 
+                    DATE(created_at) as date,
+                    SUM(total_amount) as daily_revenue
+                  FROM orders
+                  WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                  AND status != 'cancelled'
+                  GROUP BY DATE(created_at)
+                  ORDER BY date";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        
+        $historicalData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Calcular média móvel
+        $avgRevenue = 0;
+        if (count($historicalData) > 0) {
+            $totalRevenue = array_sum(array_column($historicalData, 'daily_revenue'));
+            $avgRevenue = $totalRevenue / count($historicalData);
+        }
+        
+        // Projetar próximos dias
+        $forecast = [];
+        for ($i = 1; $i <= $days; $i++) {
+            $date = date('Y-m-d', strtotime("+{$i} days"));
+            $forecast[] = [
+                'date' => $date,
+                'projected_revenue' => $avgRevenue * (1 + (rand(-10, 10) / 100)) // Adiciona variação de ±10%
+            ];
+        }
+        
+        return $forecast;
     }
 }
 ?>

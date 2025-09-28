@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 02/07/2025 às 04:23
+-- Tempo de geração: 28/09/2025 às 08:19
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -31,20 +31,10 @@ CREATE TABLE `cart_items` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
+  `size` varchar(10) NOT NULL,
   `quantity` int(11) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `cart_items`
---
-
-INSERT INTO `cart_items` (`id`, `user_id`, `product_id`, `quantity`, `created_at`) VALUES
-(1, 2, 1, 2, '2025-06-24 17:16:50'),
-(2, 2, 5, 1, '2025-06-24 17:16:50'),
-(3, 3, 3, 1, '2025-06-24 17:16:50'),
-(4, 5, 10, 1, '2025-07-01 02:29:30'),
-(5, 5, 2, 1, '2025-07-01 02:38:24');
 
 -- --------------------------------------------------------
 
@@ -100,8 +90,9 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `status`, `payment_method`, `shipping_address`, `created_at`, `updated_at`) VALUES
-(1, 2, 279.70, 'delivered', 'credit_card', 'Rua A, 123, São Paulo - SP, 01234-567', '2025-06-24 17:16:51', '2025-06-24 17:16:51'),
-(2, 3, 249.90, 'processing', 'pix', 'Rua C, 789, São Paulo - SP, 03456-789', '2025-06-24 17:16:51', '2025-06-24 17:16:51');
+(13, 7, 79.99, 'processing', 'pix', 'Rua Reverendo Coriolano, 19,  - Jardim Aviação, Presidente Prudente - SP, CEP: 19020500', '2025-09-28 06:04:05', '2025-09-28 06:04:05'),
+(14, 8, 79.99, 'processing', 'pix', 'Rua Reverendo Coriolano, 19,  - Jardim Aviação, Presidente Prudente - SP, CEP: 19020500', '2025-09-28 06:05:32', '2025-09-28 06:05:32'),
+(15, 8, 159.98, 'processing', 'boleto', 'Rua Reverendo Coriolano, 19,  - Jardim Aviação, Presidente Prudente - SP, CEP: 19020500', '2025-09-28 06:06:28', '2025-09-28 06:06:28');
 
 -- --------------------------------------------------------
 
@@ -113,6 +104,7 @@ CREATE TABLE `order_items` (
   `id` int(11) NOT NULL,
   `order_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
+  `size` varchar(10) NOT NULL,
   `quantity` int(11) NOT NULL,
   `price` decimal(10,2) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -122,10 +114,10 @@ CREATE TABLE `order_items` (
 -- Despejando dados para a tabela `order_items`
 --
 
-INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`, `created_at`) VALUES
-(1, 1, 1, 2, 89.90, '2025-06-24 17:16:51'),
-(2, 1, 5, 1, 99.90, '2025-06-24 17:16:51'),
-(3, 2, 4, 1, 249.90, '2025-06-24 17:16:51');
+INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `size`, `quantity`, `price`, `created_at`) VALUES
+(1, 13, 16, 'GG', 1, 79.99, '2025-09-28 06:04:05'),
+(2, 14, 16, 'GG', 1, 79.99, '2025-09-28 06:05:32'),
+(3, 15, 16, 'G', 2, 79.99, '2025-09-28 06:06:28');
 
 -- --------------------------------------------------------
 
@@ -139,8 +131,6 @@ CREATE TABLE `products` (
   `description` text DEFAULT NULL,
   `price` decimal(10,2) NOT NULL,
   `category` varchar(100) DEFAULT NULL,
-  `size` varchar(10) DEFAULT NULL,
-  `stock_quantity` int(11) DEFAULT 0,
   `image_url` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -150,22 +140,33 @@ CREATE TABLE `products` (
 -- Despejando dados para a tabela `products`
 --
 
-INSERT INTO `products` (`id`, `name`, `description`, `price`, `category`, `size`, `stock_quantity`, `image_url`, `created_at`, `updated_at`) VALUES
-(1, 'Camiseta Naruto - Akatsuki', 'Camiseta preta com estampa da Akatsuki em vermelho. 100% algodão, estampa em silk screen de alta qualidade.', 89.90, 'Camisetas', 'M', 50, 'naruto_akatsuki.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(2, 'Moletom Tokyo Ghoul', 'Moletom com capuz preto, estampa do Ken Kaneki. Material: 70% algodão, 30% poliéster.', 159.90, 'Moletons', 'G', 30, 'tokyo_ghoul_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(3, 'Camiseta Attack on Titan - Survey Corps', 'Camiseta verde com emblema da Tropa de Exploração. Design minimalista streetwear.', 79.90, 'Camisetas', 'M', 40, 'aot_survey_corps.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(4, 'Jaqueta Demon Slayer', 'Jaqueta bomber inspirada no uniforme do Tanjiro. Detalhes em verde e preto.', 249.90, 'Jaquetas', 'GG', 20, 'demon_slayer_jacket.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(5, 'Camiseta One Piece - Mugiwara', 'Camiseta branca com símbolo dos Chapéus de Palha. Edição limitada.', 99.90, 'Camisetas', 'P', 35, 'onepiece_mugiwara.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(6, 'Moletom Jujutsu Kaisen', 'Moletom cinza com estampa do Gojo Satoru. Super confortável para o dia a dia.', 179.90, 'Moletons', 'M', 25, 'jjk_gojo_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(7, 'Calça Cargo Cyberpunk', 'Calça cargo preta com detalhes em neon. Inspirada em Cyberpunk Edgerunners.', 189.90, 'Calças', '42', 15, 'cyberpunk_cargo.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(8, 'Camiseta Death Note', 'Camiseta preta com design minimalista do Death Note. Premium quality.', 89.90, 'Camisetas', 'G', 45, 'death_note_tee.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(9, 'Jaqueta Evangelion', 'Jaqueta varsity roxa e verde inspirada no EVA-01. Coleção exclusiva.', 299.90, 'Jaquetas', 'M', 10, 'evangelion_jacket.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(10, 'Shorts Dragon Ball', 'Shorts laranja inspirado no uniforme de treino do Goku. Perfeito para academia.', 119.90, 'Shorts', 'G', 30, 'dbz_shorts.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(11, 'Camiseta Hunter x Hunter', 'Camiseta preta com símbolos Nen. Design discreto e elegante.', 84.90, 'Camisetas', 'GG', 40, 'hxh_nen_tee.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(12, 'Moletom My Hero Academia', 'Moletom vermelho e branco da U.A. High School. Licenciado oficial.', 199.90, 'Moletons', 'P', 20, 'mha_ua_hoodie.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(13, 'Calça Jogger Chainsaw Man', 'Calça jogger preta com estampa do Pochita. Streetwear premium.', 169.90, 'Calças', '40', 25, 'chainsaw_jogger.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(14, 'Camiseta Spy x Family', 'Camiseta rosa com a Anya. Design fofo e moderno.', 79.90, 'Camisetas', 'M', 50, 'spy_family_anya.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50'),
-(15, 'Jaqueta Corta-Vento Pokémon', 'Jaqueta leve com estampa de Pokébolas. Ideal para dias frescos.', 139.90, 'Jaquetas', 'G', 35, 'pokemon_windbreaker.jpg', '2025-06-24 17:16:50', '2025-06-24 17:16:50');
+INSERT INTO `products` (`id`, `name`, `description`, `price`, `category`, `image_url`, `created_at`, `updated_at`) VALUES
+(16, 'Camiseta Akatsuki', 'Sim da akatsuki', 79.99, 'Camisetas', '68d8ce73ddffb-naruto_akatsuki.jpg', '2025-09-28 05:58:11', '2025-09-28 05:58:11');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `product_variants`
+--
+
+CREATE TABLE `product_variants` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `size` varchar(10) NOT NULL,
+  `stock_quantity` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `product_variants`
+--
+
+INSERT INTO `product_variants` (`id`, `product_id`, `size`, `stock_quantity`) VALUES
+(1, 16, 'PP', 50),
+(2, 16, 'P', 50),
+(3, 16, 'M', 50),
+(4, 16, 'G', 48),
+(5, 16, 'GG', 48),
+(6, 16, 'XG', 50);
 
 -- --------------------------------------------------------
 
@@ -196,8 +197,9 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `address`, `cit
 (2, 'João Silva', 'joao@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '11987654321', 'Rua A, 123', 'São Paulo', 'SP', '01234-567', 'customer', '2025-06-24 17:16:50'),
 (3, 'Maria Santos', 'maria@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '11912345678', 'Av. B, 456', 'São Paulo', 'SP', '02345-678', 'customer', '2025-06-24 17:16:50'),
 (4, 'Pedro Oliveira', 'pedro@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '11923456789', 'Rua C, 789', 'São Paulo', 'SP', '03456-789', 'customer', '2025-06-24 17:16:50'),
-(5, 'Daniel José Dantas Jacometo', 'marciojjacometo@gmail.com', '$2y$10$3JvpLmupHtBQilXTassyY.tPnTrvPDK1Hxa.XwJC2JNXDVAIIRXxu', '18997222271', 'Rua João Corazza, 402', 'Presidente Prudente', 'SP', '19064-564', 'admin', '2025-06-25 01:24:48'),
-(6, 'João Pedro Garcia Girotto', 'godlolpro@gmail.com', '$2y$10$j7dbY7egOsGhUyd1zzgjV.yhWsEm8tRTLWJS1XF..TAs0KAB1gn.C', '18991238584', '', '', '', '19064145', 'customer', '2025-07-01 03:13:45');
+(5, 'Daniel José Dantas Jacometo', 'marciojjacometo@gmail.com', '$2y$10$3JvpLmupHtBQilXTassyY.tPnTrvPDK1Hxa.XwJC2JNXDVAIIRXxu', '18997222271', 'Rua João Corazza, 402', 'Presidente Prudente', 'SP', '19020-500', 'admin', '2025-06-25 01:24:48'),
+(7, 'Daniel José Dantas Jacometo', 'ziki@gmail.com', '$2y$10$j/KfWqeA4v.7gzqBno2Z3efMMjvUA7lXSJPtFWxFsuMaT3.tPSydO', '18997222271', 'Rua João Corazza, 402', 'Presidente Prudente', 'SP', '19064-564', 'admin', '2025-09-27 04:41:02'),
+(8, 'Daniel José Dantas Jacometo', 'marciojjacometo@hotmail.com', '$2y$10$BQCBQCz.J0bMFUvLA3Jb5.b3qw7owLm/92T5nWLFzZZi4mt9kQfvW', '18997222271', 'Rua João Corazza, 402', 'Presidente Prudente', 'SP', '19020500', 'customer', '2025-09-28 06:04:51');
 
 --
 -- Índices para tabelas despejadas
@@ -240,6 +242,13 @@ ALTER TABLE `products`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `product_variants`
+--
+ALTER TABLE `product_variants`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `product_id` (`product_id`);
+
+--
 -- Índices de tabela `users`
 --
 ALTER TABLE `users`
@@ -254,7 +263,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT de tabela `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `coupons`
@@ -266,7 +275,7 @@ ALTER TABLE `coupons`
 -- AUTO_INCREMENT de tabela `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de tabela `order_items`
@@ -278,13 +287,19 @@ ALTER TABLE `order_items`
 -- AUTO_INCREMENT de tabela `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT de tabela `product_variants`
+--
+ALTER TABLE `product_variants`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Restrições para tabelas despejadas
@@ -309,6 +324,12 @@ ALTER TABLE `orders`
 ALTER TABLE `order_items`
   ADD CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `product_variants`
+--
+ALTER TABLE `product_variants`
+  ADD CONSTRAINT `product_variants_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -128,10 +128,10 @@ switch($action) {
         break;
         
     // Order routes
-    case 'checkout':
-        $controller = new CartController();
-        $controller->index();
-        break;
+    // case 'checkout':
+    //     $controller = new CartController();
+    //     $controller->index();
+    //     break;
         
     case 'create_order':
         $controller = new OrderController();

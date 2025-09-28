@@ -38,8 +38,8 @@ class OrderController {
                     $total = $total - $discount;
                 }
                 
-                // Usar factory para criar pedido pendente
-                $order = $this->orderFactory->createPendingOrder(
+                // Usar factory para criar pedido (agora com status 'processing')
+                $order = $this->orderFactory->createOrder( // <-- MUDANÇA AQUI
                     $_SESSION['user_id'],
                     $total,
                     $_POST['payment_method'],

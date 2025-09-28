@@ -24,38 +24,19 @@
                         class="product-image"
                         onerror="this.src='<?php echo BASE_URL; ?>images/placeholder.jpg'"
                         loading="lazy">
-                </a>
                 
-                <div class="product-info">
-                    <div class="product-category"><?php echo $product['category']; ?></div>
-                    <h3 class="product-name">
-                        <a href="/tsukuyomi/public/index.php?action=product&id=<?php echo $product['id']; ?>">
+                    <div class="product-info">
+                        <div class="product-category"><?php echo $product['category']; ?></div>
+                        <h3 class="product-name">
                             <?php echo $product['name']; ?>
-                        </a>
-                    </h3>
-                    <div class="product-price">💰 R$ <?php echo number_format($product['price'], 2, ',', '.'); ?></div>
-                    <div class="product-size">Tamanho: <?php echo $product['size']; ?></div>
-                    
-                    <?php if($product['stock_quantity'] > 0): ?>
+                        </h3>
+                        <div class="product-price">💰 R$ <?php echo number_format($product['price'], 2, ',', '.'); ?></div>
+                        
                         <div class="product_add_cart">
-                            <button onclick="addToCart(<?php echo $product['id']; ?>)" class="btn btn-primary">
-                                Adicionar ao Carrinho
-                            </button>
+                            <span class="btn btn-primary">Ver Detalhes</span>
                         </div>
-                    <?php else: ?>
-                        <button class="btn btn-secondary" disabled>❌ Esgotado</button>
-                    <?php endif; ?>
-                    
-                    <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
-                        <div style="margin-top: 1rem;">
-                            <a href="/tsukuyomi/public/index.php?action=edit_product&id=<?php echo $product['id']; ?>" 
-                               class="btn btn-secondary">Editar</a>
-                            <a href="/tsukuyomi/public/index.php?action=delete_product&id=<?php echo $product['id']; ?>" 
-                               class="btn btn-danger" 
-                               onclick="return confirm('Tem certeza que deseja excluir este produto?')">Excluir</a>
-                        </div>
-                    <?php endif; ?>
-                </div>
+                    </div>
+                </a>
             </div>
         <?php endforeach; ?>
     </div>

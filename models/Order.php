@@ -10,100 +10,68 @@ class Order {
     public $status;
     public $payment_method;
     public $shipping_address;
-    public $created_at;
-    public $updated_at;
     
     public function __construct($db) {
         $this->conn = $db;
     }
     
-    // Create order
     public function create() {
-        // Start transaction
         $this->conn->beginTransaction();
-        
         try {
-            // Insert order
-            $query = "INSERT INTO " . $this->table_name . "
-                    SET user_id=:user_id, total_amount=:total_amount,
-                        status=:status, payment_method=:payment_method,
-                        shipping_address=:shipping_address";
-            
+            // Insere o pedido principal
+            $query = "INSERT INTO " . $this->table_name . " SET user_id=:user_id, total_amount=:total_amount, status=:status, payment_method=:payment_method, shipping_address=:shipping_address";
             $stmt = $this->conn->prepare($query);
-            
             $stmt->bindParam(':user_id', $this->user_id);
             $stmt->bindParam(':total_amount', $this->total_amount);
             $stmt->bindParam(':status', $this->status);
             $stmt->bindParam(':payment_method', $this->payment_method);
             $stmt->bindParam(':shipping_address', $this->shipping_address);
-            
-            if(!$stmt->execute()) {
-                throw new Exception("Failed to create order");
-            }
-            
+            $stmt->execute();
             $this->id = $this->conn->lastInsertId();
             
-            // Get cart items
-            $cart_query = "SELECT c.product_id, c.quantity, p.price
-                        FROM cart c
-                        JOIN products p ON c.product_id = p.id
-                        WHERE c.user_id = :user_id";
-            
+            // Pega os itens do carrinho (agora com tamanho)
+            $cart_query = "SELECT c.product_id, c.size, c.quantity, p.price FROM cart_items c JOIN products p ON c.product_id = p.id WHERE c.user_id = :user_id";
             $cart_stmt = $this->conn->prepare($cart_query);
             $cart_stmt->bindParam(':user_id', $this->user_id);
             $cart_stmt->execute();
             
-            // Insert order items
+            // Insere os itens do pedido (agora com tamanho)
+            $item_query = "INSERT INTO " . $this->order_items_table . " SET order_id=:order_id, product_id=:product_id, size=:size, quantity=:quantity, price=:price";
+            $item_stmt = $this->conn->prepare($item_query);
+
+            $variant_stock_query = "UPDATE product_variants SET stock_quantity = stock_quantity - :quantity WHERE product_id = :product_id AND size = :size";
+            $variant_stock_stmt = $this->conn->prepare($variant_stock_query);
+
             while($row = $cart_stmt->fetch(PDO::FETCH_ASSOC)) {
-                $item_query = "INSERT INTO " . $this->order_items_table . "
-                            SET order_id=:order_id, product_id=:product_id,
-                                quantity=:quantity, price=:price";
-                
-                $item_stmt = $this->conn->prepare($item_query);
                 $item_stmt->bindParam(':order_id', $this->id);
                 $item_stmt->bindParam(':product_id', $row['product_id']);
+                $item_stmt->bindParam(':size', $row['size']); // Salva o tamanho
                 $item_stmt->bindParam(':quantity', $row['quantity']);
                 $item_stmt->bindParam(':price', $row['price']);
+                $item_stmt->execute();
                 
-                if(!$item_stmt->execute()) {
-                    throw new Exception("Failed to create order item");
-                }
-                
-                // Update product stock
-                $stock_query = "UPDATE products 
-                            SET stock_quantity = stock_quantity - :quantity
-                            WHERE id = :product_id";
-                
-                $stock_stmt = $this->conn->prepare($stock_query);
-                $stock_stmt->bindParam(':quantity', $row['quantity']);
-                $stock_stmt->bindParam(':product_id', $row['product_id']);
-                
-                if(!$stock_stmt->execute()) {
-                    throw new Exception("Failed to update stock");
-                }
+                // Atualiza o estoque na tabela de variantes
+                $variant_stock_stmt->bindParam(':quantity', $row['quantity']);
+                $variant_stock_stmt->bindParam(':product_id', $row['product_id']);
+                $variant_stock_stmt->bindParam(':size', $row['size']);
+                $variant_stock_stmt->execute();
             }
             
-            // Clear cart
-            $clear_query = "DELETE FROM cart WHERE user_id = :user_id";
+            // Limpa o carrinho
+            $clear_query = "DELETE FROM cart_items WHERE user_id = :user_id";
             $clear_stmt = $this->conn->prepare($clear_query);
             $clear_stmt->bindParam(':user_id', $this->user_id);
+            $clear_stmt->execute();
             
-            if(!$clear_stmt->execute()) {
-                throw new Exception("Failed to clear cart");
-            }
-            
-            // Commit transaction
             $this->conn->commit();
             return true;
-            
         } catch(Exception $e) {
-            // Rollback transaction
             $this->conn->rollBack();
+            error_log($e->getMessage());
             return false;
         }
     }
-    
-    // Get user orders
+
     public function getUserOrders() {
         $query = "SELECT * FROM " . $this->table_name . " 
                 WHERE user_id = :user_id
@@ -116,7 +84,6 @@ class Order {
         return $stmt;
     }
     
-    // Get order details
     public function getOrderDetails() {
         $query = "SELECT o.*, u.name as user_name, u.email as user_email
                 FROM " . $this->table_name . " o
@@ -130,9 +97,8 @@ class Order {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
-    // Get order items
     public function getOrderItems() {
-        $query = "SELECT oi.*, p.name, p.image_url, p.size
+        $query = "SELECT oi.size, oi.quantity, oi.price, p.name, p.image_url
                 FROM " . $this->order_items_table . " oi
                 JOIN products p ON oi.product_id = p.id
                 WHERE oi.order_id = :order_id";
@@ -143,22 +109,11 @@ class Order {
         
         return $stmt;
     }
-    
-    // // Update order status
-    // public function updateStatus() {
-    //     $query = "UPDATE " . $this->table_name . "
-    //             SET status = :status
-    //             WHERE id = :id";
-        
-    //     $stmt = $this->conn->prepare($query);
-        
-    //     $stmt->bindParam(':status', $this->status);
-    //     $stmt->bindParam(':id', $this->id);
-        
-    //     return $stmt->execute();
-    // }
-    
-    // Método para listar todos os pedidos (admin)
+
+    /**
+     * FUNÇÃO ADICIONADA DE VOLTA
+     * Método para listar todos os pedidos (admin)
+     */
     public function getAllOrders() {
         $query = "SELECT 
                     o.id,
@@ -179,34 +134,9 @@ class Order {
         
         return $stmt;
     }
-    
-    // Método para filtrar pedidos por status (admin)
-    public function getAllOrdersByStatus($status) {
-        $query = "SELECT 
-                    o.id,
-                    o.user_id,
-                    o.total_amount,
-                    o.status,
-                    o.payment_method,
-                    o.shipping_address,
-                    o.created_at,
-                    u.name as user_name,
-                    u.email as user_email
-                  FROM orders o
-                  LEFT JOIN users u ON o.user_id = u.id
-                  WHERE o.status = :status
-                  ORDER BY o.created_at DESC";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':status', $status);
-        $stmt->execute();
-        
-        return $stmt;
-    }
-    
-    // Método para atualizar status do pedido
+
     public function updateStatus() {
-        $query = "UPDATE orders 
+        $query = "UPDATE " . $this->table_name . " 
                   SET status = :status 
                   WHERE id = :id";
         
@@ -214,10 +144,7 @@ class Order {
         $stmt->bindParam(':status', $this->status);
         $stmt->bindParam(':id', $this->id);
         
-        if($stmt->execute()) {
-            return true;
-        }
-        return false;
+        return $stmt->execute();
     }
 }
 ?>

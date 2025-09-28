@@ -3,20 +3,16 @@ require_once '../factories/ModelFactory.php';
 
 class CartController {
     private $cartFactory;
-    private $productFactory;
     
     public function __construct() {
-        // Usar o FactoryManager para obter as factories necessárias
         $factoryManager = FactoryManager::getInstance();
         $this->cartFactory = $factoryManager->getFactory('cart');
-        $this->productFactory = $factoryManager->getFactory('product');
     }
     
-    // Show cart
+    // Mostra o carrinho
     public function index() {
         if(!isset($_SESSION['user_id'])) {
-            header('Location: index.php?action=login');
-            exit();
+            header('Location: index.php?action=login'); exit();
         }
         
         $cart = $this->cartFactory->createModel();
@@ -28,65 +24,36 @@ class CartController {
         include '../views/cart/index.php';
     }
     
-    // Add to cart
+    // Adiciona ao carrinho
     public function add() {
-        // Limpar qualquer output anterior
         ob_clean();
-        
-        // Definir header para JSON
         header('Content-Type: application/json');
         
-        // Array de resposta
-        $response = [];
-        
-        try {
-            // Verificar se usuário está logado
-            if(!isset($_SESSION['user_id'])) {
-                $response = ['success' => false, 'message' => 'Faça login primeiro'];
-                echo json_encode($response);
-                exit();
-            }
-            
-            // Verificar se recebeu dados POST
-            if(!isset($_POST['product_id'])) {
-                $response = ['success' => false, 'message' => 'ID do produto não fornecido'];
-                echo json_encode($response);
-                exit();
-            }
-            
-            // Usar factory para criar item de carrinho
-            $cart = $this->cartFactory->createCartItem(
-                $_SESSION['user_id'],
-                $_POST['product_id'],
-                $_POST['quantity'] ?? 1
-            );
-            
-            // Tentar adicionar ao carrinho
-            if($cart->addToCart()) {
-                // Atualizar contagem do carrinho na sessão
-                $_SESSION['cart_count'] = $cart->getCartCount();
-                $response = [
-                    'success' => true, 
-                    'message' => 'Produto adicionado ao carrinho',
-                    'cart_count' => $_SESSION['cart_count']
-                ];
-            } else {
-                $response = ['success' => false, 'message' => 'Erro ao adicionar ao carrinho'];
-            }
-            
-        } catch (Exception $e) {
-            $response = [
-                'success' => false, 
-                'message' => 'Erro: ' . $e->getMessage()
-            ];
+        if(!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Faça login primeiro']); exit();
         }
         
-        // Enviar resposta JSON
-        echo json_encode($response);
+        // Agora precisa do ID do produto e do tamanho
+        if(!isset($_POST['product_id']) || !isset($_POST['size'])) {
+            echo json_encode(['success' => false, 'message' => 'Produto ou tamanho não especificado']); exit();
+        }
+        
+        $cart = $this->cartFactory->createModel();
+        $cart->user_id = $_SESSION['user_id'];
+        $cart->product_id = $_POST['product_id'];
+        $cart->size = $_POST['size'];
+        $cart->quantity = $_POST['quantity'] ?? 1;
+
+        if($cart->addToCart()) {
+            $_SESSION['cart_count'] = $cart->getCartCount();
+            echo json_encode(['success' => true, 'message' => 'Produto adicionado!', 'cart_count' => $_SESSION['cart_count']]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erro ao adicionar ao carrinho']);
+        }
         exit();
     }
     
-    // Update quantity
+    // ... (demais funções do controller: update, remove, clear) ...
     public function update() {
         ob_clean();
         header('Content-Type: application/json');
@@ -114,7 +81,6 @@ class CartController {
         exit();
     }
     
-    // Remove from cart
     public function remove($id) {
         if(!isset($_SESSION['user_id'])) {
             header('Location: index.php?action=login');
@@ -136,7 +102,6 @@ class CartController {
         exit();
     }
     
-    // Clear cart
     public function clear() {
         if(!isset($_SESSION['user_id'])) {
             header('Location: index.php?action=login');

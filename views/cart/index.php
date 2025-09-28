@@ -1,1019 +1,482 @@
 <?php include '../views/layout/header.php'; ?>
 
-<h1>🛒 Meu Carrinho</h1>
+<div class="page-container">
 
-<div class="cart-container fade-in">
-    <?php if(!empty($cart_items)): ?>
-        <div class="cart-items">
-            <?php foreach($cart_items as $index => $item): ?>
-                <div class="cart-item slide-in-left" id="cart-item-<?php echo $item['id']; ?>" style="animation-delay: <?php echo $index * 0.1; ?>s;">
-                    <img src="images/products/<?php echo $item['image_url']; ?>" 
-                         alt="<?php echo $item['name']; ?>" 
-                         class="cart-item-image"
-                         onerror="this.src='images/placeholder.jpg'"
-                         loading="lazy">
-                    
-                    <div class="cart-item-info">
-                        <h3><?php echo htmlspecialchars($item['name']); ?></h3>
-                        <p>📏 Tamanho: <strong><?php echo $item['size']; ?></strong></p>
-                        <p class="product-price">💰 R$ <span class="item-price"><?php echo number_format($item['price'], 2, ',', '.'); ?></span></p>
+    <div class="checkout-container">
+
+        <?php if(!empty($cart_items)): ?>
+
+            <div id="initial-cart-view">
+                <h1 class="main-title">🛒 Meu Carrinho</h1>
+                <div class="initial-cart-layout">
+                    <div class="cart-items-list">
+                        <?php foreach($cart_items as $index => $item): ?>
+                            <div class="cart-item" id="cart-item-<?php echo $item['id']; ?>">
+                                <img src="images/products/<?php echo $item['image_url']; ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" class="cart-item-image" onerror="this.src='images/placeholder.jpg'" loading="lazy">
+                                <div class="cart-item-info">
+                                    <h3><?php echo htmlspecialchars($item['name']); ?></h3>
+                                    <p>Tamanho: <strong><?php echo $item['size']; ?></strong></p>
+                                    <p class="product-price">R$ <span class="item-price"><?php echo number_format($item['price'], 2, ',', '.'); ?></span></p>
+                                </div>
+                                <div class="cart-item-actions">
+                                    <div class="quantity-controls">
+                                        <button class="quantity-btn minus" onclick="changeQuantity(<?php echo $item['id']; ?>, -1, <?php echo $item['price']; ?>)">-</button>
+                                        <input type="number" value="<?php echo $item['quantity']; ?>" min="1" max="<?php echo $item['stock_quantity']; ?>" class="quantity-input" id="quantity-<?php echo $item['id']; ?>" onchange="updateCartItem(<?php echo $item['id']; ?>, this.value)">
+                                        <button class="quantity-btn plus" onclick="changeQuantity(<?php echo $item['id']; ?>, 1, <?php echo $item['price']; ?>)">+</button>
+                                    </div>
+                                    <p class="item-total">Total: R$ <span id="item-total-<?php echo $item['id']; ?>"><?php echo number_format($item['price'] * $item['quantity'], 2, ',', '.'); ?></span></p>
+                                    <a href="index.php?action=remove_from_cart&id=<?php echo $item['id']; ?>" class="btn-remove" onclick="return confirm('Remover este item do carrinho?')">Remover</a>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
-                    
-                    <div class="cart-item-actions">
-                        <div class="quantity-controls">
-                            <button class="quantity-btn minus" onclick="changeQuantity(<?php echo $item['id']; ?>, -1)">-</button>
-                            <input type="number" 
-                                   value="<?php echo $item['quantity']; ?>" 
-                                   min="1" 
-                                   max="<?php echo $item['stock_quantity']; ?>"
-                                   class="quantity-input"
-                                   id="quantity-<?php echo $item['id']; ?>"
-                                   data-cart-id="<?php echo $item['id']; ?>"
-                                   data-price="<?php echo $item['price']; ?>"
-                                   onchange="updateCartItem(<?php echo $item['id']; ?>, this.value)">
-                            <button class="quantity-btn plus" onclick="changeQuantity(<?php echo $item['id']; ?>, 1)">+</button>
+                    <div class="cart-summary-initial">
+                         <h3>Resumo do Pedido</h3>
+                         <div class="summary-line">
+                            <span>Subtotal:</span>
+                            <span id="initial-subtotal">R$ <?php echo number_format($total, 2, ',', '.'); ?></span>
                         </div>
-                        
-                        <p class="item-total">
-                            💳 Total: R$ <span id="item-total-<?php echo $item['id']; ?>"><?php echo number_format($item['price'] * $item['quantity'], 2, ',', '.'); ?></span>
-                        </p>
-                        
-                        <a href="index.php?action=remove_from_cart&id=<?php echo $item['id']; ?>" 
-                           class="btn btn-danger btn-sm"
-                           onclick="return confirm('Remover este item do carrinho?')">🗑️ Remover</a>
+                         <div class="summary-line">
+                            <span>Frete:</span>
+                            <span>A calcular no checkout</span>
+                        </div>
+                        <hr class="summary-divider-initial">
+                         <div class="cart-total">
+                            <span>Total (parcial):</span>
+                            <span id="initial-total">R$ <?php echo number_format($total, 2, ',', '.'); ?></span>
+                        </div>
+                        <button class="btn btn-primary btn-block" onclick="startCheckout()">✨ IR PARA O CHECKOUT</button>
+                         <a href="index.php?action=products" class="btn btn-secondary btn-block">🛍️ CONTINUAR COMPRANDO</a>
                     </div>
                 </div>
-            <?php endforeach; ?>
-        </div>
-        
-        <div class="cart-summary slide-in-right">
-            <h3>📋 Resumo do Pedido</h3>
-            
-            <!-- Cupom de Desconto -->
-            <div class="coupon-section">
-                <h4>🎫 Cupom de Desconto</h4>
-                <?php if(isset($_SESSION['coupon']) && $_SESSION['coupon']['valid']): ?>
-                    <div class="applied-coupon">
-                        <div class="coupon-info">
-                            <span class="coupon-code"><?php echo $_SESSION['coupon']['code']; ?></span>
-                            <span class="coupon-desc"><?php echo $_SESSION['coupon']['description']; ?></span>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-danger" onclick="removeCoupon()">Remover</button>
-                    </div>
-                <?php else: ?>
-                    <div class="coupon-input-group">
-                        <input type="text" 
-                               id="coupon_code" 
-                               class="form-control" 
-                               placeholder="🎟️ Digite o código do cupom"
-                               style="text-transform: uppercase;">
-                        <button type="button" class="btn btn-secondary" onclick="applyCoupon()">Aplicar</button>
-                    </div>
-                    <div id="coupon-message" class="coupon-message"></div>
-                <?php endif; ?>
             </div>
-            
-            <div class="summary-line">
-                <span>Subtotal:</span>
-                <span id="cart-subtotal">💰 R$ <?php echo number_format($total, 2, ',', '.'); ?></span>
+
+            <div id="checkout-view" style="display: none;">
+                <div class="checkout-header">
+                    <h1>Finalizar Compra</h1>
+                    <p>Complete as etapas abaixo para finalizar seu pedido</p>
+                </div>
+
+                <div class="progress-steps">
+                    <div class="step active" data-step="1"><div class="step-circle">🛒</div><div class="step-label">Revisão</div></div>
+                    <div class="step" data-step="2"><div class="step-circle">📍</div><div class="step-label">Endereço</div></div>
+                    <div class="step" data-step="3"><div class="step-circle">💳</div><div class="step-label">Pagamento</div></div>
+                    <div class="step" data-step="4"><div class="step-circle">✅</div><div class="step-label">Confirmação</div></div>
+                    <div class="progress-line-bg">
+                        <div class="progress-line-fg" id="progress-line-fg"></div>
+                    </div>
+                </div>
+
+                <div class="checkout-content">
+                    <div class="step-content">
+                        <div class="step-panel active" id="step-1">
+                            <h2>Revise os itens para compra</h2>
+                            <div class="review-items-list" id="review-cart-items"></div>
+                            <div class="coupon-section">
+                                 <h3>Cupom de Desconto</h3>
+                                 <div id="coupon-area" class="coupon-input-group">
+                                    <input type="text" class="form-control" id="coupon-code" placeholder="Digite o código do cupom">
+                                    <button class="btn btn-secondary" onclick="applyCoupon()">APLICAR</button>
+                                 </div>
+                            </div>
+                            <div class="navigation-buttons">
+                                <a href="index.php?action=products" class="btn btn-secondary">← CONTINUAR COMPRANDO</a>
+                                <button class="btn btn-primary" onclick="nextStep()" id="next-1">PRÓXIMO: ENDEREÇO →</button>
+                            </div>
+                        </div>
+
+                        <div class="step-panel" id="step-2">
+                             <h2>Endereço de Entrega</h2>
+                             <form class="address-form" id="address-form">
+                                <div class="form-group">
+                                    <label for="cep">CEP *</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" maxlength="9" required>
+                                        <button type="button" class="btn btn-secondary" onclick="searchCEP()">BUSCAR</button>
+                                    </div>
+                                </div>
+                                 <div class="form-row">
+                                     <div class="form-group" style="flex: 3;"><label for="street">Rua/Avenida *</label><input type="text" class="form-control" id="street" name="street" required></div>
+                                     <div class="form-group" style="flex: 1;"><label for="number">Número *</label><input type="text" class="form-control" id="number" name="number" required></div>
+                                 </div>
+                                 <div class="form-group"><label for="complement">Complemento</label><input type="text" class="form-control" id="complement" name="complement" placeholder="Apartamento, bloco, etc (opcional)"></div>
+                                 <div class="form-row">
+                                     <div class="form-group" style="flex: 2;"><label for="neighborhood">Bairro *</label><input type="text" class="form-control" id="neighborhood" name="neighborhood" required></div>
+                                     <div class="form-group" style="flex: 2;"><label for="city">Cidade *</label><input type="text" class="form-control" id="city" name="city" required></div>
+                                     <div class="form-group" style="flex: 1;"><label for="state">Estado *</label><select class="form-control" id="state" name="state" required><option value="">UF</option><option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option></select></div>
+                                 </div>
+                             </form>
+                             <div class="navigation-buttons">
+                                <button class="btn btn-secondary" onclick="previousStep()">← VOLTAR</button>
+                                <button class="btn btn-primary" onclick="nextStep()" id="next-2">PRÓXIMO: PAGAMENTO →</button>
+                             </div>
+                        </div>
+
+                        <div class="step-panel" id="step-3">
+                            <h2>Forma de Pagamento</h2>
+                            <form id="payment-form">
+                                <div class="payment-methods">
+                                     <div class="payment-method" onclick="selectPayment('card')" data-method="card"><div class="payment-icon">💳</div><div class="payment-label">Cartão</div></div>
+                                     <div class="payment-method" onclick="selectPayment('pix')" data-method="pix"><div class="payment-icon">📱</div><div class="payment-label">PIX</div></div>
+                                     <div class="payment-method" onclick="selectPayment('boleto')" data-method="boleto"><div class="payment-icon">📄</div><div class="payment-label">Boleto</div></div>
+                                </div>
+                                <div class="payment-details" id="card-details">
+                                    <h4>Dados do Cartão</h4>
+                                    <div class="form-row"><div class="form-group"><label for="card_number">Número do Cartão</label><input type="text" id="card_number" name="card_number" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCardNumber(this)"></div></div>
+                                    <div class="form-row"><div class="form-group"><label for="card_name">Nome no Cartão</label><input type="text" id="card_name" name="card_name" class="form-control" placeholder="NOME COMO ESTÁ NO CARTÃO" style="text-transform: uppercase;"></div></div>
+                                    <div class="form-row">
+                                        <div class="form-group"><label for="card_expiry">Validade</label><input type="text" id="card_expiry" name="card_expiry" class="form-control" placeholder="MM/AA" maxlength="5" oninput="formatExpiry(this)"></div>
+                                        <div class="form-group"><label for="card_cvv">CVV</label><input type="text" id="card_cvv" name="card_cvv" class="form-control" placeholder="123" maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
+                                    </div>
+                                    <div class="form-row"><div class="form-group"><label for="card_cpf">CPF do Titular</label><input type="text" id="card_cpf" name="card_cpf" class="form-control" placeholder="000.000.000-00" maxlength="14" oninput="formatCPF(this)"></div></div>
+                                </div>
+                                <div class="payment-details" id="pix-details"><div class="payment-info"><h4>Pagamento via PIX</h4><p>Ao finalizar o pedido, você receberá um QR Code para pagamento instantâneo. O prazo para pagamento é de 30 minutos.</p></div></div>
+                                <div class="payment-details" id="boleto-details"><div class="payment-info"><h4>Pagamento via Boleto</h4><p>O boleto será gerado após a confirmação do pedido. O prazo de pagamento é de 3 dias úteis.</p></div></div>
+                            </form>
+                            <div class="navigation-buttons">
+                                <button class="btn btn-secondary" onclick="previousStep()">← VOLTAR</button>
+                                <button class="btn btn-primary" onclick="nextStep()" id="next-3">PRÓXIMO: REVISAR PEDIDO →</button>
+                            </div>
+                        </div>
+
+                        <div class="step-panel" id="step-4">
+                            <h2>Revise e Confirme seu Pedido</h2>
+                            <div id="order-review"></div>
+                            <div class="navigation-buttons">
+                                <button class="btn btn-secondary" onclick="previousStep()">← VOLTAR</button>
+                                <form action="index.php?action=create_order" method="POST" id="final-checkout-form" onsubmit="prepareFinalForm()">
+                                     <input type="hidden" name="shipping_address" id="shipping_address_hidden">
+                                     <input type="hidden" name="payment_method" id="payment_method_hidden">
+                                     <button type="submit" class="btn btn-success" id="confirm-order">🎉 FINALIZAR COMPRA</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-summary">
+                        <h3 class="summary-title">Resumo do Pedido</h3>
+                        <div class="summary-items" id="summary-items"></div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-row"><span>Subtotal:</span><span id="subtotal">R$ 0,00</span></div>
+                        <div class="summary-row discount" id="discount-row" style="display: none;"><span>Desconto:</span><span id="discount">-R$ 0,00</span></div>
+                        <div class="summary-row"><span>Frete:</span><span id="shipping">A calcular</span></div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-row total"><span>Total:</span><span id="total">R$ 0,00</span></div>
+                    </div>
+                </div>
             </div>
-            
-            <?php if(isset($_SESSION['coupon']) && $_SESSION['coupon']['valid']): ?>
-                <div class="summary-line discount-line">
-                    <span>🎉 Desconto:</span>
-                    <span id="cart-discount" class="discount-value">-💰 R$ <?php echo number_format($_SESSION['coupon']['discount_amount'], 2, ',', '.'); ?></span>
-                </div>
-            <?php endif; ?>
-            
-            <div class="summary-line">
-                <span>🚚 Frete:</span>
-                <span id="cart-shipping">✅ Grátis</span>
+
+        <?php else: ?>
+            <div class="empty-cart">
+                <h3>🛒 Seu carrinho está vazio</h3>
+                <p>✨ Adicione alguns produtos incríveis!</p>
+                <a href="index.php?action=products" class="btn btn-primary">🛍️ Ver Produtos</a>
             </div>
-            <hr>
-            <div class="cart-total">
-                <span>💳 Total:</span>
-                <?php 
-                $final_total = $total;
-                if(isset($_SESSION['coupon']) && $_SESSION['coupon']['valid']) {
-                    $final_total = $total - $_SESSION['coupon']['discount_amount'];
-                }
-                ?>
-                <span id="cart-total">💰 R$ <?php echo number_format($final_total, 2, ',', '.'); ?></span>
-            </div>
-            
-            <form action="index.php?action=create_order" method="POST" class="checkout-form" onsubmit="return validateCheckout()">
-                <!-- Seleção de Forma de Pagamento -->
-                <div class="form-group">
-                    <label>💳 Forma de Pagamento</label>
-                    <div class="payment-methods">
-                        <label class="payment-option">
-                            <input type="radio" name="payment_method" value="card" onclick="showPaymentForm('card')">
-                            <span class="payment-icon">💳</span>
-                            <span>Cartão</span>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="payment_method" value="pix" onclick="showPaymentForm('pix')">
-                            <span class="payment-icon">📱</span>
-                            <span>PIX</span>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="payment_method" value="boleto" onclick="showPaymentForm('boleto')">
-                            <span class="payment-icon">📄</span>
-                            <span>Boleto</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Formulário de Cartão -->
-                <div id="card-form" class="payment-form" style="display: none;">
-                    <h4>💳 Dados do Cartão</h4>
-                    
-                    <div class="form-group">
-                        <label>Tipo de Cartão</label>
-                        <div class="card-type-selector">
-                            <label class="radio-option">
-                                <input type="radio" name="card_type" value="credit" checked>
-                                <span>Crédito</span>
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="card_type" value="debit">
-                                <span>Débito</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="card_number">Número do Cartão</label>
-                        <input type="text" 
-                               id="card_number" 
-                               name="card_number" 
-                               class="form-control" 
-                               placeholder="0000 0000 0000 0000"
-                               maxlength="19"
-                               oninput="formatCardNumber(this)">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="card_name">Nome no Cartão</label>
-                        <input type="text" 
-                               id="card_name" 
-                               name="card_name" 
-                               class="form-control" 
-                               placeholder="NOME COMO ESTÁ NO CARTÃO"
-                               style="text-transform: uppercase;">
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group half">
-                            <label for="card_expiry">Validade</label>
-                            <input type="text" 
-                                   id="card_expiry" 
-                                   name="card_expiry" 
-                                   class="form-control" 
-                                   placeholder="MM/AA"
-                                   maxlength="5"
-                                   oninput="formatExpiry(this)">
-                        </div>
-                        
-                        <div class="form-group half">
-                            <label for="card_cvv">CVV</label>
-                            <input type="text" 
-                                   id="card_cvv" 
-                                   name="card_cvv" 
-                                   class="form-control" 
-                                   placeholder="123"
-                                   maxlength="4"
-                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="card_cpf">CPF do Titular</label>
-                        <input type="text" 
-                               id="card_cpf" 
-                               name="card_cpf" 
-                               class="form-control" 
-                               placeholder="000.000.000-00"
-                               maxlength="14"
-                               oninput="formatCPF(this)">
-                    </div>
-                </div>
-                
-                <!-- Formulário PIX -->
-                <div id="pix-form" class="payment-form" style="display: none;">
-                    <h4>📱 Pagamento via PIX</h4>
-                    <div class="pix-info">
-                        <p>📱 Ao finalizar o pedido, você receberá um QR Code para pagamento.</p>
-                        <p>⏰ O prazo para pagamento é de 30 minutos.</p>
-                        <div class="pix-benefits">
-                            <span>✓ Pagamento instantâneo</span>
-                            <span>✓ Sem taxas adicionais</span>
-                            <span>✓ 100% seguro</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Formulário Boleto -->
-                <div id="boleto-form" class="payment-form" style="display: none;">
-                    <h4>📄 Pagamento via Boleto</h4>
-                    <div class="boleto-info">
-                        <p>📄 O boleto será gerado após a confirmação do pedido.</p>
-                        <p>⏰ Prazo de pagamento: 3 dias úteis.</p>
-                        <div class="form-group">
-                            <label for="boleto_cpf">CPF para emissão do boleto</label>
-                            <input type="text" 
-                                   id="boleto_cpf" 
-                                   name="boleto_cpf" 
-                                   class="form-control" 
-                                   placeholder="000.000.000-00"
-                                   maxlength="14"
-                                   oninput="formatCPF(this)">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Endereço de Entrega -->
-                <div class="shipping-section">
-                    <h4>🏠 Endereço de Entrega</h4>
-                    
-                    <div class="form-group">
-                        <label for="shipping_cep">📮 CEP</label>
-                        <div class="cep-input-group">
-                            <input type="text" 
-                                   id="shipping_cep" 
-                                   name="shipping_cep" 
-                                   class="form-control" 
-                                   placeholder="00000-000"
-                                   maxlength="9"
-                                   oninput="formatCEP(this)"
-                                   onblur="buscarCEP(this.value)">
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="buscarCEPClick()">
-                                Buscar CEP
-                            </button>
-                        </div>
-                        <small class="form-text">
-                            <a href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank">
-                                🔍 Não sei meu CEP
-                            </a>
-                        </small>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group col-8">
-                            <label for="shipping_street">Rua/Avenida</label>
-                            <input type="text" 
-                                   id="shipping_street" 
-                                   name="shipping_street" 
-                                   class="form-control" 
-                                   placeholder="Ex: Rua das Flores"
-                                   required>
-                        </div>
-                        
-                        <div class="form-group col-4">
-                            <label for="shipping_number">Número</label>
-                            <input type="text" 
-                                   id="shipping_number" 
-                                   name="shipping_number" 
-                                   class="form-control" 
-                                   placeholder="123"
-                                   required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="shipping_complement">Complemento</label>
-                        <input type="text" 
-                               id="shipping_complement" 
-                               name="shipping_complement" 
-                               class="form-control" 
-                               placeholder="Apartamento, bloco, casa, etc. (opcional)">
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group col-5">
-                            <label for="shipping_neighborhood">Bairro</label>
-                            <input type="text" 
-                                   id="shipping_neighborhood" 
-                                   name="shipping_neighborhood" 
-                                   class="form-control" 
-                                   placeholder="Ex: Centro"
-                                   required>
-                        </div>
-                        
-                        <div class="form-group col-5">
-                            <label for="shipping_city">Cidade</label>
-                            <input type="text" 
-                                   id="shipping_city" 
-                                   name="shipping_city" 
-                                   class="form-control" 
-                                   placeholder="Ex: São Paulo"
-                                   required>
-                        </div>
-                        
-                        <div class="form-group col-2">
-                            <label for="shipping_state">Estado</label>
-                            <select id="shipping_state" 
-                                    name="shipping_state" 
-                                    class="form-control" 
-                                    required>
-                                <option value="">UF</option>
-                                <option value="AC">AC</option>
-                                <option value="AL">AL</option>
-                                <option value="AP">AP</option>
-                                <option value="AM">AM</option>
-                                <option value="BA">BA</option>
-                                <option value="CE">CE</option>
-                                <option value="DF">DF</option>
-                                <option value="ES">ES</option>
-                                <option value="GO">GO</option>
-                                <option value="MA">MA</option>
-                                <option value="MT">MT</option>
-                                <option value="MS">MS</option>
-                                <option value="MG">MG</option>
-                                <option value="PA">PA</option>
-                                <option value="PB">PB</option>
-                                <option value="PR">PR</option>
-                                <option value="PE">PE</option>
-                                <option value="PI">PI</option>
-                                <option value="RJ">RJ</option>
-                                <option value="RN">RN</option>
-                                <option value="RS">RS</option>
-                                <option value="RO">RO</option>
-                                <option value="RR">RR</option>
-                                <option value="SC">SC</option>
-                                <option value="SP">SP</option>
-                                <option value="SE">SE</option>
-                                <option value="TO">TO</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="shipping_reference">Ponto de Referência</label>
-                        <input type="text" 
-                               id="shipping_reference" 
-                               name="shipping_reference" 
-                               class="form-control" 
-                               placeholder="Ex: Próximo ao supermercado (opcional)">
-                    </div>
-                    
-                    <!-- Opção de salvar endereço -->
-                    <?php if(isset($_SESSION['user_id'])): ?>
-                    <div class="form-check">
-                        <input type="checkbox" 
-                               class="form-check-input" 
-                               id="save_address" 
-                               name="save_address" 
-                               value="1">
-                        <label class="form-check-label" for="save_address">
-                            💾 Salvar este endereço para próximas compras
-                        </label>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <!-- Campo hidden para endereço completo formatado -->
-                    <input type="hidden" name="shipping_address" id="shipping_address_formatted">
-                </div>
-                
-                <button type="submit" class="btn btn-primary btn-block">🎉 Finalizar Pedido</button>
-            </form>
-            
-            <div class="cart-actions">
-                <a href="index.php?action=products" class="btn btn-secondary">🛍️ Continuar Comprando</a>
-            </div>
-        </div>
-    <?php else: ?>
-        <div class="empty-cart">
-            <h3>🛒 Seu carrinho está vazio</h3>
-            <p>✨ Adicione alguns produtos incríveis!</p>
-            <a href="index.php?action=products" class="btn btn-primary">🛍️ Ver Produtos</a>
-        </div>
-    <?php endif; ?>
+        <?php endif; ?>
+    </div>
 </div>
 
 <style>
-/* Estilos do sistema de pagamento */
-.payment-methods {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.payment-option {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem;
-    border: 2px solid var(--border-color);
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.payment-option:hover {
-    border-color: var(--primary-color);
-}
-
-.payment-option input[type="radio"] {
-    display: none;
-}
-
-.payment-option input[type="radio"]:checked + .payment-icon {
-    color: var(--primary-color);
-}
-
-.payment-option input[type="radio"]:checked ~ span {
-    color: var(--primary-color);
-}
-
-.payment-option input[type="radio"]:checked + .payment-icon + span {
-    font-weight: 600;
-}
-
-.payment-icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-}
-
-.payment-form {
-    background-color: var(--surface-color);
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.payment-form h4 {
-    margin-bottom: 1rem;
-    color: var(--primary-color);
-}
-
-/* Estilos do formulário de endereço */
-.shipping-section {
-    background-color: var(--surface-color);
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.shipping-section h4 {
-    margin-bottom: 1rem;
-    color: var(--primary-color);
-}
-
-.cep-input-group {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.cep-input-group input {
-    flex: 1;
-}
-
-.form-text {
-    display: block;
-    margin-top: 0.25rem;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-}
-
-.form-text a {
-    color: var(--primary-color);
-    text-decoration: underline;
-}
-
-.form-row {
-    display: grid;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.col-2 { grid-column: span 2; }
-.col-4 { grid-column: span 4; }
-.col-5 { grid-column: span 5; }
-.col-8 { grid-column: span 8; }
-
-@media (min-width: 768px) {
-    .form-row {
-        grid-template-columns: repeat(12, 1fr);
-    }
-}
-
-.form-check {
-    margin-top: 1rem;
-}
-
-.form-check-input {
-    margin-right: 0.5rem;
-}
-
-/* Indicador de carregamento do CEP */
-.cep-loading {
-    display: none;
-    color: var(--primary-color);
-    font-size: 0.875rem;
-    margin-top: 0.5rem;
-}
-
-.cep-loading.active {
-    display: block;
-}
-
-/* Outros estilos já existentes... */
-
-.card-type-selector {
-    display: flex;
-    gap: 1rem;
-}
-
-.radio-option {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    border: 2px solid var(--border-color);
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.radio-option input[type="radio"] {
-    margin-right: 0.5rem;
-}
-
-.radio-option:hover {
-    border-color: var(--primary-color);
-}
-
-.radio-option input[type="radio"]:checked + span {
-    color: var(--primary-color);
-    font-weight: 600;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.form-group.half {
-    margin-bottom: 0;
-}
-
-.pix-info, .boleto-info {
-    background-color: var(--background-color);
-    padding: 1rem;
-    border-radius: 0.5rem;
-}
-
-.pix-benefits {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 1rem;
-    color: var(--primary-color);
-}
-
-/* Outros estilos do carrinho */
-.quantity-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.quantity-btn {
-    width: 30px;
-    height: 30px;
-    border: 1px solid var(--border-color);
-    background-color: var(--surface-color);
-    color: var(--text-primary);
-    border-radius: 0.25rem;
-    cursor: pointer;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.quantity-btn:hover {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-@keyframes highlight {
-    0% { background-color: rgba(139, 92, 246, 0.2); }
-    100% { background-color: transparent; }
-}
-
-.updated {
-    animation: highlight 0.5s ease-out;
-}
-
-@media (max-width: 768px) {
-    .payment-methods {
-        grid-template-columns: 1fr;
+    /* RESET BÁSICO */
+    .checkout-container *, .checkout-container *::before, .checkout-container *::after { box-sizing: border-box; }
+    
+    /* NOVO CONTAINER DE PÁGINA */
+    .page-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
     }
     
-    .form-row {
-        grid-template-columns: 1fr;
+    /* LAYOUT INICIAL DO CARRINHO */
+    .main-title { font-size: 2rem; margin-bottom: 2rem; }
+    .initial-cart-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 2rem; align-items: flex-start; }
+    .cart-items-list { display: flex; flex-direction: column; gap: 1.5rem; }
+    .cart-item { display: grid; grid-template-columns: 100px 1fr auto; gap: 1.5rem; align-items: center; background: var(--surface-color); padding: 1.5rem; border-radius: var(--border-radius-lg); border: 1px solid var(--border-color); }
+    .cart-item-image { width: 100px; height: 100px; object-fit: cover; border-radius: var(--border-radius-md); }
+    .cart-item-info h3 { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
+    .cart-item-info p { margin: 0; color: var(--text-secondary); font-size: 0.9rem; }
+    .product-price { font-weight: bold; font-size: 1.2rem; color: var(--primary-color); }
+    .cart-item-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; }
+    .quantity-controls { display: flex; align-items: center; gap: 0.5rem; }
+    .quantity-input { width: 50px; text-align: center; }
+    .item-total { font-weight: bold; }
+    .btn-remove { font-size: 0.8rem; color: var(--error-color); background: none; border: none; cursor: pointer; text-transform: uppercase; }
+    .cart-summary-initial { background: var(--surface-color); padding: 2rem; border-radius: var(--border-radius-lg); position: sticky; top: 120px; border: 1px solid var(--border-color); }
+    .cart-summary-initial h3 { text-align: center; margin-bottom: 1.5rem; }
+    .summary-divider-initial { border: none; height: 1px; background-color: var(--border-color); margin: 1rem 0; }
+    .cart-summary-initial .btn { margin-top: 1rem; }
+    .cart-total { font-size: 1.2rem; font-weight: bold; }
+
+    /* LAYOUT GERAL DO CHECKOUT */
+    .checkout-header { text-align: center; margin-bottom: 2.5rem; }
+    .checkout-header h1 { font-size: 2.25rem; margin-bottom: 0.5rem; }
+    .checkout-header p { color: var(--text-secondary); }
+    .checkout-content { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 2rem; align-items: flex-start; }
+    .step-content { background: var(--surface-color); border-radius: var(--border-radius-xl); padding: 2.5rem; border: 1px solid var(--border-color); }
+    .step-panel { display: none; animation: fadeIn 0.5s ease; }
+    .step-panel.active { display: block; }
+    .step-panel h2 { font-size: 1.5rem; margin-bottom: 2rem; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* BARRA DE PROGRESSO (CORRIGIDA) */
+    .progress-steps { display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; position: relative; margin-bottom: 3rem; }
+    .step { text-align: center; position: relative; z-index: 2; }
+    .step-circle { width: 40px; height: 40px; border-radius: 50%; background: var(--surface-color); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; transition: all 0.4s ease; font-size: 1.25rem; }
+    .step-label { color: var(--text-secondary); font-weight: 500; font-size: 0.8rem; }
+    .step.active .step-circle { border-color: var(--primary-color); color: var(--primary-color); }
+    .step.active .step-label { color: var(--text-primary); }
+    .step.completed .step-circle { border-color: var(--success-color); background: var(--success-color); color: white; }
+    .progress-line-bg { position: absolute; top: 19px; left: 12.5%; width: 75%; height: 2px; background: var(--border-color); z-index: 1; border-radius: 1px; }
+    .progress-line-fg { background: var(--primary-color); height: 100%; width: 0; transition: width 0.4s ease; border-radius: 1px; }
+
+    /* FORMULÁRIOS */
+    .form-row { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .form-group { flex: 1; display: flex; flex-direction: column; min-width: 120px; }
+    .form-group label { margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary); }
+    .input-group { display: flex; gap: 0.5rem; }
+
+    /* RESUMO DO PEDIDO (SIDEBAR) */
+    .order-summary { background: var(--surface-color); border-radius: var(--border-radius-xl); padding: 2rem; border: 1px solid var(--border-color); position: sticky; top: 120px; }
+    .summary-title { font-size: 1.25rem; margin-bottom: 1.5rem; }
+    .summary-items { max-height: 250px; overflow-y: auto; padding-right: 10px; margin-bottom: 1rem; }
+    .summary-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem; margin-bottom: 0.75rem; }
+    .summary-item span { flex: 1; }
+    .summary-divider { height: 1px; background-color: var(--border-color); margin: 1.5rem 0; }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.75rem; }
+    .summary-row.total { font-size: 1.2rem; font-weight: bold; margin-top: 1rem; color: var(--primary-color); }
+
+    /* ETAPA 1: REVISÃO */
+    .review-items-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+    .review-item { display: flex; align-items: center; gap: 1rem; background: var(--background-color); padding: 1rem; border-radius: var(--border-radius-md); }
+    .review-item-image { width: 60px; height: 60px; object-fit: cover; border-radius: var(--border-radius-sm); }
+    .review-item-info { flex-grow: 1; }
+    .review-item-info h4 { margin: 0 0 0.25rem; font-size: 1rem; }
+    .coupon-section { margin-top: 2rem; background: var(--background-color); padding: 1.5rem; border-radius: var(--border-radius-md); }
+    .coupon-section h3 { margin-bottom: 1rem; }
+    .coupon-input-group { display: flex; gap: 1rem; }
+
+    /* ETAPA 3: PAGAMENTO */
+    .payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .payment-method { text-align: center; padding: 1rem; border: 2px solid var(--border-color); border-radius: var(--border-radius-lg); cursor: pointer; transition: all 0.2s ease; }
+    .payment-method:hover { border-color: var(--primary-color); }
+    .payment-method.selected { border-color: var(--primary-color); background: rgba(139, 92, 246, 0.1); }
+    .payment-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .payment-details { display: none; animation: fadeIn 0.3s; margin-top: 1rem; background: var(--background-color); padding: 1.5rem; border-radius: var(--border-radius-md); }
+    .payment-details.active { display: block; }
+    .payment-info { color: var(--text-secondary); }
+    .payment-info h4 { color: var(--text-primary); margin-bottom: 0.5rem; }
+    
+    /* BOTÕES */
+    .navigation-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; }
+    .btn-block { width: 100%; text-align: center; }
+
+    /* RESPONSIVIDADE */
+    @media (max-width: 992px) {
+        .initial-cart-layout, .checkout-content { grid-template-columns: 1fr; }
+        .order-summary { position: static; margin-top: 2rem; }
     }
-}
+    @media (max-width: 768px) {
+        .cart-item { grid-template-columns: 1fr; text-align: center; }
+        .cart-item-image { margin: 0 auto; }
+        .cart-item-actions { align-items: center; }
+        .payment-methods { grid-template-columns: 1fr; gap: 0.5rem; }
+    }
 </style>
 
 <script>
+    // Todo o JavaScript da resposta anterior permanece o mesmo.
+    // Ele já está configurado para funcionar com esta nova estrutura.
+    const initialCartData = <?php echo json_encode($cart_items); ?>;
+    let currentStep = 1;
+    let orderData = { items: [], coupon: null, address: {}, payment: {}, subtotal: 0, discount: 0, shipping: 15.00, total: 0 };
 
-// Aplicar cupom
-function applyCoupon() {
-    const code = document.getElementById('coupon_code').value.trim();
-    const messageDiv = document.getElementById('coupon-message');
-    
-    if (!code) {
-        messageDiv.textContent = 'Por favor, digite um código de cupom';
-        messageDiv.className = 'coupon-message error';
-        return;
+    function startCheckout() {
+        document.getElementById('initial-cart-view').style.display = 'none';
+        document.getElementById('checkout-view').style.display = 'block';
+        initializeCheckout();
+    }
+
+    function initializeCheckout() {
+        orderData.items = JSON.parse(JSON.stringify(initialCartData)).map(item => ({...item, selected: true}));
+        loadReviewItems();
+        updateSummary();
     }
     
-    const subtotalText = document.getElementById('cart-subtotal').textContent;
-    const subtotal = parseFloat(subtotalText.replace('R$ ', '').replace('.', '').replace(',', '.'));
-    
-    const formData = new FormData();
-    formData.append('code', code);
-    formData.append('total', subtotal);
-    
-    fetch('index.php?action=validate_coupon', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.valid) {
-            messageDiv.textContent = data.message;
-            messageDiv.className = 'coupon-message success';
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            messageDiv.textContent = data.message;
-            messageDiv.className = 'coupon-message error';
-        }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        messageDiv.textContent = 'Erro ao validar cupom';
-        messageDiv.className = 'coupon-message error';
-    });
-}
-
-// Remover cupom
-function removeCoupon() {
-    if (confirm('Deseja remover o cupom de desconto?')) {
-        fetch('index.php?action=remove_coupon', {
-            method: 'POST'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
+    function loadReviewItems() {
+        const reviewContainer = document.getElementById('review-cart-items');
+        reviewContainer.innerHTML = '';
+        orderData.items.forEach(item => {
+            reviewContainer.innerHTML += `
+                <div class="review-item">
+                    <img src="images/products/${item.image_url}" alt="${item.name}" class="review-item-image" onerror="this.src='images/placeholder.jpg'">
+                    <div class="review-item-info">
+                        <h4>${item.name}</h4><p>${item.quantity} x R$ ${parseFloat(item.price).toFixed(2).replace('.',',')}</p>
+                    </div>
+                    <strong class="item-price">R$ ${(item.quantity * item.price).toFixed(2).replace('.',',')}</strong>
+                </div>`;
         });
     }
-}
 
-// Função para buscar CEP ao clicar no botão
-function buscarCEPClick() {
-    const cepInput = document.getElementById('shipping_cep');
-    if (cepInput) {
-        buscarCEP(cepInput.value);
-    }
-}
+    function updateSummary() {
+        orderData.subtotal = orderData.items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+        
+        orderData.discount = 0;
+        if (orderData.coupon && orderData.coupon.valid) {
+            let discountAmount = parseFloat(orderData.coupon.discount_amount) || 0;
+            orderData.discount = discountAmount > orderData.subtotal ? orderData.subtotal : discountAmount;
+        }
 
-// Formatar CEP
-function formatCEP(input) {
-    let value = input.value.replace(/\D/g, '');
-    
-    if (value.length > 5) {
-        value = value.substring(0, 5) + '-' + value.substring(5, 8);
-    }
-    
-    input.value = value;
-}
+        orderData.total = (orderData.subtotal - orderData.discount) + orderData.shipping;
+        
+        const summaryItems = document.getElementById('summary-items');
+        summaryItems.innerHTML = orderData.items.map(item => `
+            <div class="summary-item">
+                <span>${item.quantity}x ${item.name}</span>
+                <strong>R$ ${(parseFloat(item.price) * item.quantity).toFixed(2).replace('.',',')}</strong>
+            </div>`).join('');
 
-// Buscar CEP
-function buscarCEP(cep) {
-    console.log('Buscando CEP:', cep);
-    
-    // Remove caracteres não numéricos
-    cep = cep.replace(/\D/g, '');
-    
-    // Verifica se o CEP tem 8 dígitos
-    if (cep.length !== 8) {
-        alert('Por favor, digite um CEP válido com 8 dígitos');
-        return;
+        document.getElementById('subtotal').textContent = `R$ ${orderData.subtotal.toFixed(2).replace('.',',')}`;
+        document.getElementById('discount-row').style.display = orderData.discount > 0 ? 'flex' : 'none';
+        document.getElementById('discount').textContent = `-R$ ${orderData.discount.toFixed(2).replace('.',',')}`;
+        document.getElementById('shipping').textContent = orderData.shipping > 0 ? `R$ ${orderData.shipping.toFixed(2).replace('.',',')}` : 'Grátis';
+        document.getElementById('total').textContent = `R$ ${orderData.total.toFixed(2).replace('.',',')}`;
     }
     
-    // Remove loading anterior se existir
-    const existingLoading = document.querySelector('.cep-loading');
-    if (existingLoading) {
-        existingLoading.remove();
-    }
-    
-    // Mostra indicador de carregamento
-    const cepContainer = document.getElementById('shipping_cep').parentElement;
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'cep-loading active';
-    loadingDiv.innerHTML = '🔄 Buscando endereço...';
-    loadingDiv.style.color = '#8b5cf6';
-    loadingDiv.style.fontSize = '0.875rem';
-    loadingDiv.style.marginTop = '0.5rem';
-    cepContainer.appendChild(loadingDiv);
-    
-    // Desabilita campos durante a busca
-    const fields = ['shipping_street', 'shipping_neighborhood', 'shipping_city', 'shipping_state'];
-    fields.forEach(id => {
-        const field = document.getElementById(id);
-        if (field) field.disabled = true;
-    });
-    
-    // Faz a requisição para a API do ViaCEP
-    fetch(`https://viacep.com.br/ws/${cep}/json/`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro na requisição');
-            }
-            return response.json();
-        })
+     function applyCoupon() {
+        const code = document.getElementById('coupon-code').value.toUpperCase();
+        if (!code) return;
+        
+        const formData = new FormData();
+        formData.append('code', code);
+        formData.append('total', orderData.subtotal);
+
+        fetch('index.php?action=validate_coupon', { method: 'POST', body: formData })
+        .then(res => res.json())
         .then(data => {
-            console.log('Dados recebidos:', data);
-            
+            if (data.valid) {
+                orderData.coupon = data;
+                alert('Cupom aplicado: ' + data.description);
+                document.getElementById('coupon-area').innerHTML = `<p style="color: var(--success-color); text-align: center;">Cupom <b>${data.code}</b> aplicado!</p>`;
+            } else {
+                alert(data.message || 'Cupom inválido.');
+                orderData.coupon = null;
+            }
+            updateSummary();
+        });
+    }
+
+    function nextStep() {
+        if (!validateStep(currentStep)) return;
+        if (currentStep < 4) { currentStep++; showStep(currentStep); }
+    }
+
+    function previousStep() {
+        if (currentStep > 1) { currentStep--; showStep(currentStep); }
+    }
+    
+    function showStep(step) {
+        document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(`step-${step}`).classList.add('active');
+        document.querySelectorAll('.step').forEach(s => {
+            const sNum = parseInt(s.dataset.step);
+            s.classList.remove('active', 'completed');
+            if (sNum < step) s.classList.add('completed');
+            if (sNum === step) s.classList.add('active');
+        });
+        updateProgressBar();
+        if (step === 4) prepareOrderReview();
+    }
+
+    function updateProgressBar() {
+        const progressPercentage = ((currentStep - 1) / 3) * 100;
+        document.getElementById('progress-line-fg').style.width = `${progressPercentage}%`;
+    }
+
+    function validateStep(step) {
+        if (step === 2) {
+            const form = document.getElementById('address-form');
+            if (!form.checkValidity()) {
+                alert('Por favor, preencha todos os campos de endereço obrigatórios (*).');
+                form.reportValidity();
+                return false;
+            }
+            orderData.address = Object.fromEntries(new FormData(form));
+        }
+        if (step === 3 && !orderData.payment.method) {
+            alert('Por favor, selecione uma forma de pagamento.');
+            return false;
+        }
+        return true;
+    }
+
+    function selectPayment(method) {
+        orderData.payment.method = method;
+        document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+        document.querySelector(`[data-method="${method}"]`).classList.add('selected');
+        document.querySelectorAll('.payment-details').forEach(el => el.classList.remove('active'));
+        if(document.getElementById(`${method}-details`)) {
+            document.getElementById(`${method}-details`).classList.add('active');
+        }
+    }
+
+    function searchCEP() {
+        const cep = document.getElementById('cep').value.replace(/\D/g, '');
+        if (cep.length !== 8) return alert('CEP inválido.');
+        fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(res => res.json())
+        .then(data => {
             if (!data.erro) {
-                // Preenche os campos com os dados retornados
-                if (data.logradouro) {
-                    document.getElementById('shipping_street').value = data.logradouro;
-                }
-                if (data.bairro) {
-                    document.getElementById('shipping_neighborhood').value = data.bairro;
-                }
-                if (data.localidade) {
-                    document.getElementById('shipping_city').value = data.localidade;
-                }
-                if (data.uf) {
-                    document.getElementById('shipping_state').value = data.uf;
-                }
-                
-                // Foca no campo número
-                document.getElementById('shipping_number').focus();
-                
-                // Mostra mensagem de sucesso
-                loadingDiv.innerHTML = '✅ Endereço encontrado!';
-                loadingDiv.style.color = '#22c55e';
-                setTimeout(() => loadingDiv.remove(), 3000);
-            } else {
-                loadingDiv.innerHTML = '❌ CEP não encontrado';
-                loadingDiv.style.color = '#ef4444';
-                setTimeout(() => loadingDiv.remove(), 3000);
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao buscar CEP:', error);
-            loadingDiv.innerHTML = '❌ Erro ao buscar CEP';
-            loadingDiv.style.color = '#ef4444';
-            setTimeout(() => loadingDiv.remove(), 3000);
-        })
-        .finally(() => {
-            // Habilita campos novamente
-            fields.forEach(id => {
-                const field = document.getElementById(id);
-                if (field) field.disabled = false;
-            });
+                document.getElementById('street').value = data.logradouro;
+                document.getElementById('neighborhood').value = data.bairro;
+                document.getElementById('city').value = data.localidade;
+                document.getElementById('state').value = data.uf;
+                document.getElementById('number').focus();
+            } else { alert('CEP não encontrado.'); }
         });
-}
+    }
 
-// Mostrar formulário de pagamento
-function showPaymentForm(method) {
-    // Esconder todos os formulários
-    document.querySelectorAll('.payment-form').forEach(form => {
-        form.style.display = 'none';
-    });
-    
-    // Mostrar o formulário selecionado
-    const formId = method + '-form';
-    const form = document.getElementById(formId);
-    if (form) {
-        form.style.display = 'block';
+    function prepareOrderReview() {
+        const a = orderData.address;
+        const fullAddress = `${a.street}, ${a.number}${a.complement ? ' - '+a.complement : ''}<br>${a.neighborhood}, ${a.city} - ${a.state}<br>CEP: ${a.cep}`;
+        document.getElementById('order-review').innerHTML = `
+            <div class="review-section"><h3>Endereço de Entrega</h3><p>${fullAddress}</p></div>
+            <div class="review-section"><h3>Forma de Pagamento</h3><p>${orderData.payment.method.charAt(0).toUpperCase() + orderData.payment.method.slice(1)}</p></div>`;
+    }
+
+    function prepareFinalForm() {
+        const a = orderData.address;
+        document.getElementById('shipping_address_hidden').value = `${a.street}, ${a.number}, ${a.complement || ''} - ${a.neighborhood}, ${a.city} - ${a.state}, CEP: ${a.cep}`;
+        document.getElementById('payment_method_hidden').value = orderData.payment.method;
     }
     
-    // Atualizar campos obrigatórios
-    updateRequiredFields(method);
-}
+    // Funções de formatação
+    function formatCardNumber(input) { let v = input.value.replace(/\D/g, '').slice(0,16); v = v.replace(/(\d{4})/g, '$1 ').trim(); input.value = v; }
+    function formatExpiry(input) { let v = input.value.replace(/\D/g, '').slice(0,4); if(v.length >= 2) v=v.slice(0,2)+'/'+v.slice(2); input.value = v; }
+    function formatCPF(input) { let v = input.value.replace(/\D/g, '').slice(0,11); if(v.length > 9) v=v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'); else if(v.length > 6) v=v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3'); else if(v.length > 3) v=v.replace(/(\d{3})(\d{1,3})/, '$1.$2'); input.value = v; }
 
-// Atualizar campos obrigatórios baseado no método de pagamento
-function updateRequiredFields(method) {
-    // Remover required de todos os campos de pagamento
-    document.querySelectorAll('.payment-form input').forEach(input => {
-        input.removeAttribute('required');
-    });
-    
-    // Adicionar required aos campos do método selecionado
-    if (method === 'card') {
-        document.getElementById('card_number').setAttribute('required', 'required');
-        document.getElementById('card_name').setAttribute('required', 'required');
-        document.getElementById('card_expiry').setAttribute('required', 'required');
-        document.getElementById('card_cvv').setAttribute('required', 'required');
-        document.getElementById('card_cpf').setAttribute('required', 'required');
-    } else if (method === 'boleto') {
-        document.getElementById('boleto_cpf').setAttribute('required', 'required');
-    }
-}
-
-// Formatar número do cartão
-function formatCardNumber(input) {
-    let value = input.value.replace(/\s/g, '');
-    let formattedValue = '';
-    
-    for (let i = 0; i < value.length; i++) {
-        if (i > 0 && i % 4 === 0) {
-            formattedValue += ' ';
-        }
-        formattedValue += value[i];
-    }
-    
-    input.value = formattedValue;
-}
-
-// Formatar data de validade
-function formatExpiry(input) {
-    let value = input.value.replace(/\D/g, '');
-    
-    if (value.length >= 2) {
-        value = value.substring(0, 2) + '/' + value.substring(2, 4);
-    }
-    
-    input.value = value;
-}
-
-// Formatar CPF
-function formatCPF(input) {
-    let value = input.value.replace(/\D/g, '');
-    
-    if (value.length <= 11) {
-        value = value.replace(/(\d{3})(\d)/, '$1.$2');
-        value = value.replace(/(\d{3})(\d)/, '$1.$2');
-        value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-    }
-    
-    input.value = value;
-}
-
-// Formatar endereço completo antes de enviar
-function formatFullAddress() {
-    const street = document.getElementById('shipping_street').value;
-    const number = document.getElementById('shipping_number').value;
-    const complement = document.getElementById('shipping_complement').value;
-    const neighborhood = document.getElementById('shipping_neighborhood').value;
-    const city = document.getElementById('shipping_city').value;
-    const state = document.getElementById('shipping_state').value;
-    const cep = document.getElementById('shipping_cep').value;
-    const reference = document.getElementById('shipping_reference').value;
-    
-    let fullAddress = `${street}, ${number}`;
-    
-    if (complement) {
-        fullAddress += ` - ${complement}`;
-    }
-    
-    fullAddress += `, ${neighborhood}, ${city} - ${state}, CEP: ${cep}`;
-    
-    if (reference) {
-        fullAddress += ` (Ref: ${reference})`;
-    }
-    
-    document.getElementById('shipping_address_formatted').value = fullAddress;
-}
-
-// Validar checkout atualizado
-function validateCheckout() {
-    const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
-    
-    if (!paymentMethod) {
-        alert('Por favor, selecione uma forma de pagamento');
-        return false;
-    }
-    
-    // Formatar endereço completo antes de enviar
-    formatFullAddress();
-    
-    return true;
-}
-
-// Função para mudar quantidade com botões + e -
-function changeQuantity(cartId, change) {
-    const input = document.getElementById('quantity-' + cartId);
-    const currentValue = parseInt(input.value);
-    const maxValue = parseInt(input.max);
-    const newValue = currentValue + change;
-    
-    if (newValue >= 1 && newValue <= maxValue) {
+    // Funções do carrinho inicial
+    function changeQuantity(cartId, change, price) {
+        const input = document.getElementById(`quantity-${cartId}`);
+        let newValue = parseInt(input.value) + change;
+        if (newValue < 1) newValue = 1;
         input.value = newValue;
+        document.getElementById(`item-total-${cartId}`).textContent = (newValue * price).toFixed(2).replace('.', ',');
         updateCartItem(cartId, newValue);
+        updateInitialSummary();
     }
-}
-
-// Função para atualizar item do carrinho
-function updateCartItem(cartId, quantity) {
-    const cartItem = document.getElementById('cart-item-' + cartId);
-    cartItem.classList.add('loading');
     
-    const formData = new FormData();
-    formData.append('cart_id', cartId);
-    formData.append('quantity', quantity);
-    
-    fetch('index.php?action=update_cart', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.text())
-    .then(text => {
-        console.log('Resposta:', text);
-        try {
-            const data = JSON.parse(text);
-            if (data.success) {
-                // Atualizar o total do item
-                const input = document.getElementById('quantity-' + cartId);
-                const price = parseFloat(input.dataset.price);
-                const itemTotal = price * quantity;
-                
-                document.getElementById('item-total-' + cartId).textContent = 
-                    itemTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                
-                updateCartTotal();
-                
-                cartItem.classList.remove('loading');
-                cartItem.classList.add('updated');
-                setTimeout(() => cartItem.classList.remove('updated'), 500);
-            } else {
-                console.error('Erro:', data.message);
-                location.reload();
-            }
-        } catch (e) {
-            console.error('Erro ao processar resposta:', e);
-            location.reload();
-        }
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        location.reload();
-    });
-}
-
-// Recalcular total
-function updateCartTotal() {
-    let total = 0;
-    
-    document.querySelectorAll('.cart-item').forEach(item => {
-        const itemId = item.id.replace('cart-item-', '');
-        const itemTotalText = document.getElementById('item-total-' + itemId).textContent;
-        const itemTotal = parseFloat(itemTotalText.replace('.', '').replace(',', '.'));
-        total += itemTotal;
-    });
-    
-    document.getElementById('cart-subtotal').textContent = 
-        'R$ ' + total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    document.getElementById('cart-total').textContent = 
-        'R$ ' + total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-// Adicionar evento para formatar endereço ao mudar campos
-document.addEventListener('DOMContentLoaded', function() {
-    const addressFields = [
-        'shipping_street', 'shipping_number', 'shipping_complement',
-        'shipping_neighborhood', 'shipping_city', 'shipping_state', 
-        'shipping_cep', 'shipping_reference'
-    ];
-    
-    addressFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (field) {
-            field.addEventListener('blur', formatFullAddress);
-        }
-    });
-    
-    // Adicionar evento para buscar CEP ao pressionar Enter
-    const cepInput = document.getElementById('shipping_cep');
-    if (cepInput) {
-        cepInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                buscarCEP(this.value);
-            }
-        });
+    function updateInitialSummary() {
+        let newTotal = Array.from(document.querySelectorAll('.item-total span')).reduce((sum, el) => sum + parseFloat(el.textContent.replace('.','').replace(',','.')), 0);
+        document.getElementById('initial-subtotal').textContent = `R$ ${newTotal.toFixed(2).replace('.',',')}`;
+        document.getElementById('initial-total').textContent = `R$ ${newTotal.toFixed(2).replace('.',',')}`;
     }
-});
+
+    function updateCartItem(cartId, quantity) {
+        const formData = new FormData();
+        formData.append('cart_id', cartId);
+        formData.append('quantity', quantity);
+        fetch('index.php?action=update_cart', { method: 'POST', body: formData });
+    }
 </script>
 
 <?php include '../views/layout/footer.php'; ?>

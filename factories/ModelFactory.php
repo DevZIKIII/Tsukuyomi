@@ -123,13 +123,13 @@ class OrderFactory extends ModelFactory {
     }
     
     /**
-     * Cria um pedido pendente
+     * Cria um pedido com status 'processando' para testes
      */
-    public function createPendingOrder($user_id, $total, $payment_method, $address) {
+    public function createOrder($user_id, $total, $payment_method, $address) {
         $order = $this->createModel();
         $order->user_id = $user_id;
         $order->total_amount = $total;
-        $order->status = 'pending';
+        $order->status = 'processing'; // <-- MUDANÇA AQUI
         $order->payment_method = $payment_method;
         $order->shipping_address = $address;
         

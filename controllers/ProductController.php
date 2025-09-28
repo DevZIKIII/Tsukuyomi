@@ -5,27 +5,22 @@ class ProductController {
     private $productFactory;
     
     public function __construct() {
-        // Usar o FactoryManager para obter a factory de produtos
         $factoryManager = FactoryManager::getInstance();
         $this->productFactory = $factoryManager->getFactory('product');
     }
     
-    // Display all products
     public function index() {
         $product = $this->productFactory->createModel();
         $stmt = $product->read();
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
         include '../views/products/index.php';
     }
     
-    // Show single product
     public function show($id) {
         $product = $this->productFactory->createModel();
         $product->id = $id;
         $product->readOne();
         
-        // Verificar se o produto foi encontrado
         if(!$product->name) {
             $_SESSION['error'] = "Produto não encontrado.";
             header('Location: index.php?action=products');
@@ -35,23 +30,31 @@ class ProductController {
         include '../views/products/show.php';
     }
     
-    // Create product form
     public function create() {
         if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] != 'admin') {
-            header('Location: index.php');
-            exit();
+            header('Location: index.php'); exit();
         }
-        
         include '../views/products/create.php';
     }
     
-    // Store product
     public function store() {
         if($_POST) {
-            // Usar a factory para criar produto com dados
-            $product = $this->productFactory->createProductWithData($_POST);
+            $product = $this->productFactory->createModel();
+            $product->name = $_POST['name'];
+            $product->description = $_POST['description'];
+            $product->price = $_POST['price'];
+            $product->category = $_POST['category'];
+
+            if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] == 0) {
+                $uploadDir = '../public/images/products/';
+                $fileName = uniqid() . '-' . basename($_FILES['image_file']['name']);
+                if (move_uploaded_file($_FILES['image_file']['tmp_name'], $uploadDir . $fileName)) {
+                    $product->image_url = $fileName;
+                }
+            }
             
-            if($product->create()) {
+            $initialStock = $_POST['stock_quantity'] ?? 0;
+            if($product->createWithVariants($initialStock)) {
                 $_SESSION['message'] = "Produto criado com sucesso!";
                 header('Location: index.php?action=products');
             } else {
@@ -61,34 +64,43 @@ class ProductController {
         }
     }
     
-    // Edit product form
     public function edit($id) {
         if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] != 'admin') {
-            header('Location: index.php');
-            exit();
+            header('Location: index.php'); exit();
         }
         
         $product = $this->productFactory->createModel();
         $product->id = $id;
         $product->readOne();
         
-        // Verificar se o produto foi encontrado
         if(!$product->name) {
             $_SESSION['error'] = "Produto não encontrado.";
-            header('Location: index.php?action=products');
-            exit();
+            header('Location: index.php?action=products'); exit();
         }
         
         include '../views/products/edit.php';
     }
     
-    // Update product
     public function update($id) {
-        if($_POST) {
-            $product = $this->productFactory->createProductWithData($_POST);
+        if ($_POST) {
+            $product = $this->productFactory->createModel();
             $product->id = $id;
-            
-            if($product->update()) {
+            $product->name = $_POST['name'];
+            $product->description = $_POST['description'];
+            $product->price = $_POST['price'];
+            $product->category = $_POST['category'];
+            $product->image_url = $_POST['current_image_url'];
+
+            if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] == 0) {
+                 $uploadDir = '../public/images/products/';
+                 $fileName = uniqid() . '-' . basename($_FILES['image_file']['name']);
+                 if (move_uploaded_file($_FILES['image_file']['tmp_name'], $uploadDir . $fileName)) {
+                      $product->image_url = $fileName;
+                 }
+            }
+
+            $stockData = $_POST['stock'] ?? [];
+            if ($product->updateWithVariants($stockData)) {
                 $_SESSION['message'] = "Produto atualizado com sucesso!";
                 header('Location: index.php?action=products');
             } else {
@@ -98,32 +110,28 @@ class ProductController {
         }
     }
     
-    // Delete product
     public function destroy($id) {
         if(!isset($_SESSION['user_type']) || $_SESSION['user_type'] != 'admin') {
-            header('Location: index.php');
-            exit();
+            header('Location: index.php'); exit();
         }
         
         $product = $this->productFactory->createModel();
         $product->id = $id;
         
         if($product->delete()) {
-            $_SESSION['message'] = "Produto excluído com sucesso!";
+            $_SESSION['message'] = "Produto e suas variantes foram excluídos.";
         } else {
             $_SESSION['error'] = "Erro ao excluir produto.";
         }
         
         header('Location: index.php?action=products');
     }
-    
-    // Search products
+
     public function search() {
-        $keywords = isset($_GET['q']) ? $_GET['q'] : '';
+        $keywords = $_GET['q'] ?? '';
         $product = $this->productFactory->createModel();
         $stmt = $product->search($keywords);
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
         include '../views/products/index.php';
     }
 }

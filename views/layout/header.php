@@ -23,13 +23,14 @@
                          loading="eager">
                 </a>
                 <ul class="nav-links">
+                    <li><a href="index.php?action=vote">🗳️Votar em Coleções</a></li>
                     <?php if(isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin'): ?>
                         <li><a href="index.php?action=sales_dashboard">📊 Dashboard</a></li>
                         <li><a href="index.php?action=create_product">➕ Add Produto</a></li>
                         <li><a href="index.php?action=all_orders">📦 Pedidos</a></li>
                         <li><a href="index.php?action=users">👥 Usuários</a></li>
                         <li><a href="index.php?action=coupons">🎫 Cupons</a></li>
-                        <li><a href="index.php?action=export">💾 Exportar</a></li>
+                        <li><a href="index.php?action=admin_votes">🗳️ Votações</a></li> <li><a href="index.php?action=export">💾 Exportar</a></li>
                         <li><a href="index.php?action=sales_analytics">📈 Analytics</a></li>
                     <?php endif; ?>
                 </ul>
@@ -43,9 +44,9 @@
                     <?php if(isset($_SESSION['user_id'])): ?>
                         <a href="/tsukuyomi/public/index.php?action=cart" class="btn btn-secondary btn-sm">
                             🛒 Carrinho
-                            <?php if(isset($_SESSION['cart_count']) && $_SESSION['cart_count'] > 0): ?>
-                                <span class="cart-badge"><?php echo $_SESSION['cart_count']; ?></span>
-                            <?php endif; ?>
+                            <span class="cart-badge" id="cart-badge" style="<?php echo (isset($_SESSION['cart_count']) && $_SESSION['cart_count'] > 0) ? 'display: inline-block;' : 'display: none;'; ?>">
+                                <?php echo $_SESSION['cart_count'] ?? 0; ?>
+                            </span>
                         </a>
                         
                         <div class="user-menu">

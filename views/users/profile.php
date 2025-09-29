@@ -1,10 +1,27 @@
 <?php 
+// Fallbacks para incluir o header
 if (file_exists('../views/layout/header.php')) {
     include '../views/layout/header.php';
 } elseif (file_exists('../../views/layout/header.php')) {
     include '../../views/layout/header.php';
 } else {
+    // Adapte este caminho se necessário
     include $_SERVER['DOCUMENT_ROOT'] . '/tsukuyomi/views/layout/header.php';
+}
+
+// Lógica para separar o endereço salvo no banco nos campos do formulário
+$address_parts = ['street' => '', 'number' => '', 'complement' => ''];
+if (!empty($user->address)) {
+    $parts = explode(',', $user->address);
+    $address_parts['street'] = trim($parts[0] ?? '');
+    // Verifica se a segunda parte é numérica para ser o número
+    if (isset($parts[1]) && is_numeric(trim($parts[1]))) {
+        $address_parts['number'] = trim($parts[1]);
+        $address_parts['complement'] = trim($parts[2] ?? '');
+    } else {
+        // Se não for, pode ser parte do complemento
+        $address_parts['complement'] = trim($parts[1] ?? '');
+    }
 }
 ?>
 
@@ -27,7 +44,8 @@ if (file_exists('../views/layout/header.php')) {
 
     <div class="profile-content">
         <div class="profile-form">
-            <form action="/tsukuyomi/public/index.php?action=update_profile" method="POST">
+            <form action="index.php?action=update_profile" method="POST">
+                
                 <div class="form-group">
                     <label for="name">👤 Nome Completo *</label>
                     <input type="text" id="name" name="name" class="form-control" 
@@ -46,75 +64,55 @@ if (file_exists('../views/layout/header.php')) {
                            value="<?php echo htmlspecialchars($user->phone ?? ''); ?>"
                            placeholder="(11) 99999-9999">
                 </div>
-                
-                <div class="form-group">
-                    <label for="address">🏠 Endereço</label>
-                    <input type="text" id="address" name="address" class="form-control" 
-                           value="<?php echo htmlspecialchars($user->address ?? ''); ?>"
-                           placeholder="Rua, número, complemento">
-                </div>
-                
-                <div class="form-group">
-                    <label for="city">🏙️ Cidade</label>
-                    <input type="text" id="city" name="city" class="form-control" 
-                           value="<?php echo htmlspecialchars($user->city ?? ''); ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label for="state">🗺️ Estado</label>
-                    <select id="state" name="state" class="form-control">
-                        <option value="">Selecione o estado</option>
-                        <?php 
-                        $states = [
-                            'AC' => 'Acre',
-                            'AL' => 'Alagoas',
-                            'AP' => 'Amapá',
-                            'AM' => 'Amazonas',
-                            'BA' => 'Bahia',
-                            'CE' => 'Ceará',
-                            'DF' => 'Distrito Federal',
-                            'ES' => 'Espírito Santo',
-                            'GO' => 'Goiás',
-                            'MA' => 'Maranhão',
-                            'MT' => 'Mato Grosso',
-                            'MS' => 'Mato Grosso do Sul',
-                            'MG' => 'Minas Gerais',
-                            'PA' => 'Pará',
-                            'PB' => 'Paraíba',
-                            'PR' => 'Paraná',
-                            'PE' => 'Pernambuco',
-                            'PI' => 'Piauí',
-                            'RJ' => 'Rio de Janeiro',
-                            'RN' => 'Rio Grande do Norte',
-                            'RS' => 'Rio Grande do Sul',
-                            'RO' => 'Rondônia',
-                            'RR' => 'Roraima',
-                            'SC' => 'Santa Catarina',
-                            'SP' => 'São Paulo',
-                            'SE' => 'Sergipe',
-                            'TO' => 'Tocantins'
-                        ];
-                        
-                        foreach($states as $code => $name): 
-                        ?>
-                            <option value="<?php echo $code; ?>" 
-                                    <?php echo (isset($user->state) && $user->state == $code) ? 'selected' : ''; ?>>
-                                <?php echo $name; ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                
+
                 <div class="form-group">
                     <label for="zip_code">📮 CEP</label>
                     <input type="text" id="zip_code" name="zip_code" class="form-control" 
-                           value="<?php echo htmlspecialchars($user->zip_code ?? ''); ?>"
-                           placeholder="00000-000">
+                           value="<?php echo htmlspecialchars($user->zip_code ?? ''); ?>" placeholder="00000-000">
                 </div>
                 
+                <div class="form-group">
+                    <label for="address">🏠 Endereço (Rua/Avenida)</label>
+                    <input type="text" id="address" name="address" class="form-control" 
+                           value="<?php echo htmlspecialchars($address_parts['street']); ?>" placeholder="Ex: Rua João Corazza">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="number">Nº *</label>
+                        <input type="text" id="number" name="number" class="form-control" 
+                               value="<?php echo htmlspecialchars($address_parts['number']); ?>" placeholder="Ex: 402" required>
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label for="complement">Complemento</label>
+                        <input type="text" id="complement" name="complement" class="form-control" 
+                               value="<?php echo htmlspecialchars($address_parts['complement']); ?>" placeholder="Ex: Apto 101">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="city">🏙️ Cidade</label>
+                        <input type="text" id="city" name="city" class="form-control" 
+                               value="<?php echo htmlspecialchars($user->city ?? ''); ?>">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="state">🗺️ Estado</label>
+                        <select id="state" name="state" class="form-control">
+                            <option value="">UF</option>
+                            <?php 
+                            $states = ['AC'=>'Acre', 'AL'=>'Alagoas', 'AP'=>'Amapá', 'AM'=>'Amazonas', 'BA'=>'Bahia', 'CE'=>'Ceará', 'DF'=>'Distrito Federal', 'ES'=>'Espírito Santo', 'GO'=>'Goiás', 'MA'=>'Maranhão', 'MT'=>'Mato Grosso', 'MS'=>'Mato Grosso do Sul', 'MG'=>'Minas Gerais', 'PA'=>'Pará', 'PB'=>'Paraíba', 'PR'=>'Paraná', 'PE'=>'Pernambuco', 'PI'=>'Piauí', 'RJ'=>'Rio de Janeiro', 'RN'=>'Rio Grande do Norte', 'RS'=>'Rio Grande do Sul', 'RO'=>'Rondônia', 'RR'=>'Roraima', 'SC'=>'Santa Catarina', 'SP'=>'São Paulo', 'SE'=>'Sergipe', 'TO'=>'Tocantins'];
+                            foreach($states as $code => $name): ?>
+                                <option value="<?php echo $code; ?>" <?php echo (isset($user->state) && $user->state == $code) ? 'selected' : ''; ?>>
+                                    <?php echo $name; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">💾 Atualizar Perfil</button>
-                    <a href="/tsukuyomi/public/index.php?action=orders" class="btn btn-secondary">📦 Meus Pedidos</a>
+                    <a href="index.php?action=orders" class="btn btn-secondary">📦 Meus Pedidos</a>
                 </div>
             </form>
         </div>
@@ -122,35 +120,25 @@ if (file_exists('../views/layout/header.php')) {
         <div class="profile-info">
             <div class="info-card">
                 <h3>ℹ️ Informações da Conta</h3>
-                <p><strong>📅 Membro desde:</strong> 
-                   <?php echo isset($user->created_at) ? date('d/m/Y', strtotime($user->created_at)) : 'N/A'; ?>
-                </p>
-                <p><strong>👑 Tipo de conta:</strong> 
-                   <?php echo isset($user->user_type) ? ucfirst($user->user_type) : 'Cliente'; ?>
-                </p>
+                <p><strong>📅 Membro desde:</strong> <?php echo isset($user->created_at) ? date('d/m/Y', strtotime($user->created_at)) : 'N/A'; ?></p>
+                <p><strong>👑 Tipo de conta:</strong> <?php echo isset($user->user_type) ? ucfirst($user->user_type) : 'Cliente'; ?></p>
             </div>
             
             <div class="info-card">
                 <h3>🔒 Alterar Senha</h3>
-                <form action="/tsukuyomi/public/index.php?action=change_password" method="POST">
+                <form action="index.php?action=change_password" method="POST">
                     <div class="form-group">
                         <label for="current_password">🔐 Senha Atual</label>
-                        <input type="password" id="current_password" name="current_password" 
-                               class="form-control" required>
+                        <input type="password" id="current_password" name="current_password" class="form-control" required>
                     </div>
-                    
                     <div class="form-group">
                         <label for="new_password">🆕 Nova Senha</label>
-                        <input type="password" id="new_password" name="new_password" 
-                               class="form-control" required>
+                        <input type="password" id="new_password" name="new_password" class="form-control" required>
                     </div>
-                    
                     <div class="form-group">
                         <label for="confirm_password">✅ Confirmar Nova Senha</label>
-                        <input type="password" id="confirm_password" name="confirm_password" 
-                               class="form-control" required>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
                     </div>
-                    
                     <button type="submit" class="btn btn-primary">🔒 Alterar Senha</button>
                 </form>
             </div>
@@ -160,48 +148,74 @@ if (file_exists('../views/layout/header.php')) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const zipCode = document.getElementById('zip_code');
-    const phone = document.getElementById('phone');
+    const zipCodeInput = document.getElementById('zip_code');
+    const phoneInput = document.getElementById('phone');
     const newPassword = document.getElementById('new_password');
     const confirmPassword = document.getElementById('confirm_password');
     
-    // Máscara para CEP
-    if (zipCode) {
-        zipCode.addEventListener('input', function() {
-            let value = this.value.replace(/\D/g, '');
-            if (value.length >= 5) {
+    // --- LÓGICA DO VIACEP ATUALIZADA ---
+    const addressInput = document.getElementById('address');
+    const numberInput = document.getElementById('number'); // Campo de número
+    const cityInput = document.getElementById('city');
+    const stateSelect = document.getElementById('state');
+
+    if (zipCodeInput) {
+        zipCodeInput.addEventListener('blur', function() {
+            const cep = this.value.replace(/\D/g, '');
+            if (cep.length !== 8) return;
+
+            addressInput.value = 'Buscando...';
+            cityInput.value = 'Buscando...';
+
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.erro) {
+                        addressInput.value = data.logradouro;
+                        cityInput.value = data.localidade;
+                        stateSelect.value = data.uf;
+                        numberInput.focus(); // Move o cursor para o campo de número!
+                    } else {
+                        alert('CEP não encontrado.');
+                        addressInput.value = '';
+                        cityInput.value = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar CEP:', error);
+                    alert('Ocorreu um erro ao buscar o CEP.');
+                    addressInput.value = '';
+                    cityInput.value = '';
+                });
+        });
+    }
+    // --- FIM DA LÓGICA DO VIACEP ---
+    
+    // --- Máscaras e Validações ---
+    if (zipCodeInput) {
+        zipCodeInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '').slice(0, 8);
+            if (value.length > 5) {
                 value = value.replace(/^(\d{5})(\d)/, '$1-$2');
             }
             this.value = value;
         });
     }
     
-    // Máscara para telefone
-    if (phone) {
-        phone.addEventListener('input', function() {
-            let value = this.value.replace(/\D/g, '');
-            if (value.length >= 11) {
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '').slice(0, 11);
+            if (value.length > 10) {
                 value = value.replace(/^(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-            } else if (value.length >= 6) {
-                value = value.replace(/^(\d{2})(\d{4})(\d)/, '($1) $2-$3');
-            } else if (value.length >= 2) {
+            } else if (value.length > 6) {
+                value = value.replace(/^(\d{2})(\d{4})(\d{1,4})/, '($1) $2-$3');
+            } else if (value.length > 2) {
                 value = value.replace(/^(\d{2})(\d)/, '($1) $2');
             }
             this.value = value;
         });
     }
     
-    // Validação de senha
-    if (confirmPassword) {
-        confirmPassword.addEventListener('blur', function() {
-            if (newPassword.value !== '' && this.value !== newPassword.value) {
-                alert('As senhas não coincidem!');
-                this.focus();
-            }
-        });
-    }
-    
-    // Validação do formulário de senha
     const passwordForm = document.querySelector('form[action*="change_password"]');
     if (passwordForm) {
         passwordForm.addEventListener('submit', function(e) {
@@ -216,45 +230,16 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-.alert {
-    padding: 15px;
-    border-radius: 4px;
-    margin-bottom: 20px;
-}
-
-.alert-success {
-    background: #d1e7dd;
-    color: #0f5132;
-    border: 1px solid #badbcc;
-} */
-
-.alert-error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c2c7;
-}
-
-@media (max-width: 768px) {
-    .profile-content {
-        grid-template-columns: 1fr;
+    /* Adiciona um estilo para o form-row funcionar bem */
+    .form-row {
+        display: flex;
+        gap: 1rem;
     }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .btn {
-        width: 100%;
-    }
-}
 </style>
 
 <?php 
-// Include footer com fallbacks
 if (file_exists('../views/layout/footer.php')) {
     include '../views/layout/footer.php';
-} elseif (file_exists('../../views/layout/footer.php')) {
-    include '../../views/layout/footer.php';
 } else {
     include $_SERVER['DOCUMENT_ROOT'] . '/tsukuyomi/views/layout/footer.php';
 }

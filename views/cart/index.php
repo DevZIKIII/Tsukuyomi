@@ -21,7 +21,7 @@
                                 <div class="cart-item-actions">
                                     <div class="quantity-controls">
                                         <button class="quantity-btn minus" onclick="changeQuantity(<?php echo $item['id']; ?>, -1, <?php echo $item['price']; ?>)">-</button>
-                                        <input type="number" value="<?php echo $item['quantity']; ?>" min="1" max="<?php echo $item['stock_quantity']; ?>" class="quantity-input" id="quantity-<?php echo $item['id']; ?>" onchange="updateCartItem(<?php echo $item['id']; ?>, this.value)">
+                                        <input type="number" value="<?php echo $item['quantity']; ?>" min="1" max="<?php echo $item['stock_quantity']; ?>" class="quantity-input" id="quantity-<?php echo $item['id']; ?>" onchange="updateCartItemOnServer(<?php echo $item['id']; ?>, this.value)">
                                         <button class="quantity-btn plus" onclick="changeQuantity(<?php echo $item['id']; ?>, 1, <?php echo $item['price']; ?>)">+</button>
                                     </div>
                                     <p class="item-total">Total: R$ <span id="item-total-<?php echo $item['id']; ?>"><?php echo number_format($item['price'] * $item['quantity'], 2, ',', '.'); ?></span></p>
@@ -177,7 +177,7 @@
 </div>
 
 <style>
-    /* RESET BÁSICO */
+        /* RESET BÁSICO */
     .checkout-container *, .checkout-container *::before, .checkout-container *::after { box-sizing: border-box; }
     
     /* NOVO CONTAINER DE PÁGINA */
@@ -284,24 +284,81 @@
 </style>
 
 <script>
-    // Todo o JavaScript da resposta anterior permanece o mesmo.
-    // Ele já está configurado para funcionar com esta nova estrutura.
-    const initialCartData = <?php echo json_encode($cart_items); ?>;
+    let cartItemsData = <?php echo json_encode($cart_items); ?>;
     let currentStep = 1;
     let orderData = { items: [], coupon: null, address: {}, payment: {}, subtotal: 0, discount: 0, shipping: 15.00, total: 0 };
 
+    document.addEventListener('DOMContentLoaded', function() {
+        const cepInput = document.getElementById('cep');
+        if (cepInput) {
+            cepInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '').slice(0, 8);
+                if (value.length > 5) {
+                    value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+                }
+                e.target.value = value;
+            });
+        }
+    });
+
     function startCheckout() {
+        // CORREÇÃO: Lê a quantidade atual de cada item diretamente dos inputs na página.
+        cartItemsData.forEach(item => {
+            const quantityInput = document.getElementById(`quantity-${item.id}`);
+            if (quantityInput) {
+                // Atualiza o objeto de dados com o valor que o usuário está vendo.
+                item.quantity = parseInt(quantityInput.value);
+            }
+        });
+
+        // Agora, prossegue com o checkout usando os dados 100% atualizados.
         document.getElementById('initial-cart-view').style.display = 'none';
         document.getElementById('checkout-view').style.display = 'block';
+        
         initializeCheckout();
     }
 
     function initializeCheckout() {
-        orderData.items = JSON.parse(JSON.stringify(initialCartData)).map(item => ({...item, selected: true}));
+        orderData.items = JSON.parse(JSON.stringify(cartItemsData));
         loadReviewItems();
         updateSummary();
     }
     
+    function changeQuantity(cartId, change, price) {
+        const input = document.getElementById(`quantity-${cartId}`);
+        const maxStock = parseInt(input.getAttribute('max')) || 999;
+        let newValue = parseInt(input.value) + change;
+
+        if (newValue < 1) newValue = 1;
+        if (newValue > maxStock) {
+            alert(`Desculpe, temos apenas ${maxStock} unidades em estoque.`);
+            newValue = maxStock;
+        }
+
+        input.value = newValue;
+        document.getElementById(`item-total-${cartId}`).textContent = (newValue * price).toFixed(2).replace('.', ',');
+        
+        updateCartItemOnServer(cartId, newValue);
+        updateInitialSummary();
+    }
+    
+    function updateInitialSummary() {
+        let newTotal = Array.from(document.querySelectorAll('.item-total span')).reduce((sum, el) => {
+            return sum + parseFloat(el.textContent.replace(/\./g, '').replace(',', '.'));
+        }, 0);
+        document.getElementById('initial-subtotal').textContent = `R$ ${newTotal.toFixed(2).replace('.', ',')}`;
+        document.getElementById('initial-total').textContent = `R$ ${newTotal.toFixed(2).replace('.', ',')}`;
+    }
+
+    // Esta função agora só se preocupa em notificar o servidor sobre a mudança.
+    function updateCartItemOnServer(cartId, quantity) {
+        const formData = new FormData();
+        formData.append('cart_id', cartId);
+        formData.append('quantity', quantity);
+        fetch('index.php?action=update_cart', { method: 'POST', body: formData });
+    }
+    
+    // O restante das funções (loadReviewItems, updateSummary, searchCEP, etc.) permanecem exatamente as mesmas.
     function loadReviewItems() {
         const reviewContainer = document.getElementById('review-cart-items');
         reviewContainer.innerHTML = '';
@@ -319,13 +376,11 @@
 
     function updateSummary() {
         orderData.subtotal = orderData.items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
-        
         orderData.discount = 0;
         if (orderData.coupon && orderData.coupon.valid) {
             let discountAmount = parseFloat(orderData.coupon.discount_amount) || 0;
             orderData.discount = discountAmount > orderData.subtotal ? orderData.subtotal : discountAmount;
         }
-
         orderData.total = (orderData.subtotal - orderData.discount) + orderData.shipping;
         
         const summaryItems = document.getElementById('summary-items');
@@ -345,11 +400,9 @@
      function applyCoupon() {
         const code = document.getElementById('coupon-code').value.toUpperCase();
         if (!code) return;
-        
         const formData = new FormData();
         formData.append('code', code);
         formData.append('total', orderData.subtotal);
-
         fetch('index.php?action=validate_coupon', { method: 'POST', body: formData })
         .then(res => res.json())
         .then(data => {
@@ -449,34 +502,10 @@
         document.getElementById('payment_method_hidden').value = orderData.payment.method;
     }
     
-    // Funções de formatação
     function formatCardNumber(input) { let v = input.value.replace(/\D/g, '').slice(0,16); v = v.replace(/(\d{4})/g, '$1 ').trim(); input.value = v; }
     function formatExpiry(input) { let v = input.value.replace(/\D/g, '').slice(0,4); if(v.length >= 2) v=v.slice(0,2)+'/'+v.slice(2); input.value = v; }
     function formatCPF(input) { let v = input.value.replace(/\D/g, '').slice(0,11); if(v.length > 9) v=v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'); else if(v.length > 6) v=v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3'); else if(v.length > 3) v=v.replace(/(\d{3})(\d{1,3})/, '$1.$2'); input.value = v; }
 
-    // Funções do carrinho inicial
-    function changeQuantity(cartId, change, price) {
-        const input = document.getElementById(`quantity-${cartId}`);
-        let newValue = parseInt(input.value) + change;
-        if (newValue < 1) newValue = 1;
-        input.value = newValue;
-        document.getElementById(`item-total-${cartId}`).textContent = (newValue * price).toFixed(2).replace('.', ',');
-        updateCartItem(cartId, newValue);
-        updateInitialSummary();
-    }
-    
-    function updateInitialSummary() {
-        let newTotal = Array.from(document.querySelectorAll('.item-total span')).reduce((sum, el) => sum + parseFloat(el.textContent.replace('.','').replace(',','.')), 0);
-        document.getElementById('initial-subtotal').textContent = `R$ ${newTotal.toFixed(2).replace('.',',')}`;
-        document.getElementById('initial-total').textContent = `R$ ${newTotal.toFixed(2).replace('.',',')}`;
-    }
-
-    function updateCartItem(cartId, quantity) {
-        const formData = new FormData();
-        formData.append('cart_id', cartId);
-        formData.append('quantity', quantity);
-        fetch('index.php?action=update_cart', { method: 'POST', body: formData });
-    }
 </script>
 
 <?php include '../views/layout/footer.php'; ?>

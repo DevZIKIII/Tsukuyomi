@@ -44,20 +44,27 @@ class UserController {
     // Store new user
     public function store() {
         if($_POST) {
-            // 1. Validar se as senhas coincidem
             if(!isset($_POST['password']) || !isset($_POST['confirm_password']) || $_POST['password'] !== $_POST['confirm_password']) {
-                $_SESSION['error'] = "As senhas não coincidem ou não foram fornecidas.";
+                $_SESSION['error'] = "As senhas não coincidem.";
                 redirectTo('register');
                 return;
             }
             
-            // Usar factory para criar cliente
+            // --- LÓGICA DE ENDEREÇO CORRIGIDA ---
+            // Junta os campos de endereço em uma única string para salvar no banco
+            $address_parts = [];
+            if (!empty($_POST['address'])) $address_parts[] = $_POST['address']; // Rua
+            if (!empty($_POST['number'])) $address_parts[] = $_POST['number'];   // Número
+            if (!empty($_POST['complement'])) $address_parts[] = $_POST['complement']; // Complemento
+            $full_address = implode(', ', $address_parts);
+            // --- FIM DA CORREÇÃO ---
+
             $userData = [
                 'name' => $_POST['name'] ?? '',
                 'email' => $_POST['email'] ?? '',
                 'password' => $_POST['password'],
                 'phone' => $_POST['phone'] ?? null,
-                'address' => $_POST['address'] ?? null,
+                'address' => $full_address, // Salva o endereço completo
                 'city' => $_POST['city'] ?? null,
                 'state' => $_POST['state'] ?? null,
                 'zip_code' => $_POST['zip_code'] ?? null
@@ -65,14 +72,12 @@ class UserController {
             
             $user = $this->userFactory->createCustomer($userData);
             
-            // 2. Checar se o e-mail já existe
             if($user->emailExists()) {
                 $_SESSION['error'] = "Este email já está cadastrado.";
                 redirectTo('register');
-                return; // Parar a execução
+                return;
             }
             
-            // 3. Tentar criar o usuário
             if($user->create()) {
                 $_SESSION['message'] = "Conta criada com sucesso! Faça login.";
                 redirectTo('login');
@@ -115,7 +120,16 @@ class UserController {
             $user->name = $_POST['name'];
             $user->email = $_POST['email'];
             $user->phone = $_POST['phone'];
-            $user->address = $_POST['address'];
+            
+            // --- LÓGICA DE ENDEREÇO CORRIGIDA ---
+            // Junta os campos de endereço em uma única string para salvar no banco
+            $address_parts = [];
+            if (!empty($_POST['address'])) $address_parts[] = $_POST['address']; // Rua
+            if (!empty($_POST['number'])) $address_parts[] = $_POST['number'];   // Número
+            if (!empty($_POST['complement'])) $address_parts[] = $_POST['complement']; // Complemento
+            $user->address = implode(', ', $address_parts);
+            // --- FIM DA CORREÇÃO ---
+
             $user->city = $_POST['city'];
             $user->state = $_POST['state'];
             $user->zip_code = $_POST['zip_code'];

@@ -7,6 +7,7 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Cart.php';
 require_once __DIR__ . '/../models/Order.php';
 require_once __DIR__ . '/../models/Coupon.php';
+require_once __DIR__ . '/../models/Vote.php';
 
 /**
  * Factory abstrata para criação de models
@@ -137,6 +138,12 @@ class OrderFactory extends ModelFactory {
     }
 }
 
+class VoteFactory extends ModelFactory {
+    public function createModel() {
+        return new Vote($this->db);
+    }
+}
+
 /**
  * Factory concreta para Coupon
  */
@@ -188,6 +195,7 @@ class FactoryManager {
         $this->registerFactory('cart', new CartFactory());
         $this->registerFactory('order', new OrderFactory());
         $this->registerFactory('coupon', new CouponFactory());
+        $this->registerFactory('vote', new VoteFactory());
     }
     
     /**

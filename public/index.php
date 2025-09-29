@@ -13,6 +13,7 @@ require_once '../controllers/UserController.php';
 require_once '../controllers/CartController.php';
 require_once '../controllers/OrderController.php';
 require_once '../controllers/CouponController.php';
+require_once '../controllers/VoteController.php';
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'home';
 $id = isset($_GET['id']) ? $_GET['id'] : null;
@@ -239,6 +240,57 @@ switch($action) {
         require_once '../controllers/SalesController.php';
         $controller = new SalesController();
         $controller->analytics();
+        break;
+
+    case 'vote':
+        $controller = new VoteController();
+        $controller->index();
+        break;
+
+    case 'add_vote':
+        $controller = new VoteController();
+        $controller->add();
+        break;
+    
+    // Admin Vote routes
+    case 'admin_votes':
+        $controller = new VoteController();
+        $controller->adminIndex();
+        break;
+
+    case 'create_vote':
+        $controller = new VoteController();
+        $controller->create();
+        break;
+
+    case 'store_vote':
+        $controller = new VoteController();
+        $controller->store();
+        break;
+
+    case 'toggle_vote_status':
+        $controller = new VoteController();
+        $controller->toggleStatus($id);
+        break;
+
+    case 'delete_vote':
+        $controller = new VoteController();
+        $controller->delete($id);
+        break;
+
+    case 'reset_votes':
+        $controller = new VoteController();
+        $controller->reset();
+        break;
+
+    case 'edit_vote':
+        $controller = new VoteController();
+        $controller->edit($id);
+        break;
+
+    case 'update_vote':
+        $controller = new VoteController();
+        $controller->update($id);
         break;
 }
 ?>

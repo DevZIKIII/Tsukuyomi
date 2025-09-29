@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 28/09/2025 às 08:19
+-- Tempo de geração: 29/09/2025 às 07:26
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -39,6 +39,29 @@ CREATE TABLE `cart_items` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `collection_votes`
+--
+
+CREATE TABLE `collection_votes` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `image_url` varchar(255) NOT NULL,
+  `votes` int(11) DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `collection_votes`
+--
+
+INSERT INTO `collection_votes` (`id`, `name`, `image_url`, `votes`, `is_active`) VALUES
+(1, 'Akatsuki', 'naruto_akatsuki.jpg', 2, 1),
+(2, 'One Piece', 'onepiece_mugiwara.jpg', 0, 1),
+(4, 'Death note', 'death_note_tee.jpg', 0, 1);
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `coupons`
 --
 
@@ -66,7 +89,8 @@ CREATE TABLE `coupons` (
 INSERT INTO `coupons` (`id`, `code`, `description`, `discount_type`, `discount_value`, `min_order_value`, `max_discount`, `usage_limit`, `used_count`, `valid_from`, `valid_until`, `is_active`, `created_at`, `updated_at`) VALUES
 (1, 'BEMVINDO10', 'Desconto de boas-vindas - 10% OFF', 'percentage', 10.00, 50.00, NULL, NULL, 0, '2025-07-01', '2025-07-31', 1, '2025-07-01 19:49:40', '2025-07-01 19:49:40'),
 (2, 'FRETE20', 'R$ 20 de desconto no frete', 'fixed', 20.00, 100.00, NULL, NULL, 0, '2025-07-01', '2025-08-30', 1, '2025-07-01 19:49:40', '2025-07-01 19:49:40'),
-(3, 'ANIME15', '15% OFF em produtos de anime', 'percentage', 15.00, 0.00, NULL, NULL, 0, '2025-07-01', '2025-09-29', 1, '2025-07-01 19:49:40', '2025-07-01 19:49:40');
+(3, 'ANIME15', '15% OFF em produtos de anime', 'percentage', 15.00, 0.00, NULL, NULL, 0, '2025-07-01', '2025-09-29', 1, '2025-07-01 19:49:40', '2025-07-01 19:49:40'),
+(4, 'DESCONTAO', 'DESCONTAO', 'percentage', 10.00, 0.00, NULL, NULL, 2, '2025-09-28', '2025-10-05', 1, '2025-09-29 00:32:08', '2025-09-29 05:16:50');
 
 -- --------------------------------------------------------
 
@@ -92,7 +116,9 @@ CREATE TABLE `orders` (
 INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `status`, `payment_method`, `shipping_address`, `created_at`, `updated_at`) VALUES
 (13, 7, 79.99, 'processing', 'pix', 'Rua Reverendo Coriolano, 19,  - Jardim Aviação, Presidente Prudente - SP, CEP: 19020500', '2025-09-28 06:04:05', '2025-09-28 06:04:05'),
 (14, 8, 79.99, 'processing', 'pix', 'Rua Reverendo Coriolano, 19,  - Jardim Aviação, Presidente Prudente - SP, CEP: 19020500', '2025-09-28 06:05:32', '2025-09-28 06:05:32'),
-(15, 8, 159.98, 'processing', 'boleto', 'Rua Reverendo Coriolano, 19,  - Jardim Aviação, Presidente Prudente - SP, CEP: 19020500', '2025-09-28 06:06:28', '2025-09-28 06:06:28');
+(15, 8, 159.98, 'processing', 'boleto', 'Rua Reverendo Coriolano, 19,  - Jardim Aviação, Presidente Prudente - SP, CEP: 19020500', '2025-09-28 06:06:28', '2025-09-28 06:06:28'),
+(16, 7, 71.99, 'processing', 'pix', 'Rua Reverendo Coriolano, 19,  - Jardim Aviação, Presidente Prudente - SP, CEP: 19020500', '2025-09-29 00:33:32', '2025-09-29 00:33:32'),
+(17, 7, 983.88, 'delivered', 'pix', 'Rua João Corazza, 402,  - Residencial Monte Carlo, Presidente Prudente - SP, CEP: 19064-564', '2025-09-29 05:16:50', '2025-09-29 05:17:01');
 
 -- --------------------------------------------------------
 
@@ -117,7 +143,9 @@ CREATE TABLE `order_items` (
 INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `size`, `quantity`, `price`, `created_at`) VALUES
 (1, 13, 16, 'GG', 1, 79.99, '2025-09-28 06:04:05'),
 (2, 14, 16, 'GG', 1, 79.99, '2025-09-28 06:05:32'),
-(3, 15, 16, 'G', 2, 79.99, '2025-09-28 06:06:28');
+(3, 15, 16, 'G', 2, 79.99, '2025-09-28 06:06:28'),
+(4, 16, 16, 'G', 1, 79.99, '2025-09-29 00:33:32'),
+(5, 17, 16, 'G', 13, 79.99, '2025-09-29 05:16:50');
 
 -- --------------------------------------------------------
 
@@ -164,7 +192,7 @@ INSERT INTO `product_variants` (`id`, `product_id`, `size`, `stock_quantity`) VA
 (1, 16, 'PP', 50),
 (2, 16, 'P', 50),
 (3, 16, 'M', 50),
-(4, 16, 'G', 48),
+(4, 16, 'G', 34),
 (5, 16, 'GG', 48),
 (6, 16, 'XG', 50);
 
@@ -198,8 +226,29 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `address`, `cit
 (3, 'Maria Santos', 'maria@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '11912345678', 'Av. B, 456', 'São Paulo', 'SP', '02345-678', 'customer', '2025-06-24 17:16:50'),
 (4, 'Pedro Oliveira', 'pedro@email.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '11923456789', 'Rua C, 789', 'São Paulo', 'SP', '03456-789', 'customer', '2025-06-24 17:16:50'),
 (5, 'Daniel José Dantas Jacometo', 'marciojjacometo@gmail.com', '$2y$10$3JvpLmupHtBQilXTassyY.tPnTrvPDK1Hxa.XwJC2JNXDVAIIRXxu', '18997222271', 'Rua João Corazza, 402', 'Presidente Prudente', 'SP', '19020-500', 'admin', '2025-06-25 01:24:48'),
-(7, 'Daniel José Dantas Jacometo', 'ziki@gmail.com', '$2y$10$j/KfWqeA4v.7gzqBno2Z3efMMjvUA7lXSJPtFWxFsuMaT3.tPSydO', '18997222271', 'Rua João Corazza, 402', 'Presidente Prudente', 'SP', '19064-564', 'admin', '2025-09-27 04:41:02'),
+(7, 'Daniel José Dantas Jacometo', 'ziki@gmail.com', '$2y$10$j/KfWqeA4v.7gzqBno2Z3efMMjvUA7lXSJPtFWxFsuMaT3.tPSydO', '18997222271', 'Rua Reverendo Coriolano, 19', 'Presidente Prudente', 'SP', '19020-500', 'admin', '2025-09-27 04:41:02'),
 (8, 'Daniel José Dantas Jacometo', 'marciojjacometo@hotmail.com', '$2y$10$BQCBQCz.J0bMFUvLA3Jb5.b3qw7owLm/92T5nWLFzZZi4mt9kQfvW', '18997222271', 'Rua João Corazza, 402', 'Presidente Prudente', 'SP', '19020500', 'customer', '2025-09-28 06:04:51');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `user_votes`
+--
+
+CREATE TABLE `user_votes` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `vote_option_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `user_votes`
+--
+
+INSERT INTO `user_votes` (`id`, `user_id`, `vote_option_id`, `created_at`) VALUES
+(1, 8, 1, '2025-09-29 04:15:33'),
+(2, 7, 1, '2025-09-29 04:28:09');
 
 --
 -- Índices para tabelas despejadas
@@ -212,6 +261,12 @@ ALTER TABLE `cart_items`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_cart_item` (`user_id`,`product_id`),
   ADD KEY `product_id` (`product_id`);
+
+--
+-- Índices de tabela `collection_votes`
+--
+ALTER TABLE `collection_votes`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Índices de tabela `coupons`
@@ -256,6 +311,14 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Índices de tabela `user_votes`
+--
+ALTER TABLE `user_votes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `vote_option_id` (`vote_option_id`);
+
+--
 -- AUTO_INCREMENT para tabelas despejadas
 --
 
@@ -263,25 +326,31 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT de tabela `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de tabela `collection_votes`
+--
+ALTER TABLE `collection_votes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `coupons`
 --
 ALTER TABLE `coupons`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT de tabela `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `products`
@@ -300,6 +369,12 @@ ALTER TABLE `product_variants`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT de tabela `user_votes`
+--
+ALTER TABLE `user_votes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Restrições para tabelas despejadas
@@ -330,6 +405,13 @@ ALTER TABLE `order_items`
 --
 ALTER TABLE `product_variants`
   ADD CONSTRAINT `product_variants_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `user_votes`
+--
+ALTER TABLE `user_votes`
+  ADD CONSTRAINT `user_votes_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `user_votes_ibfk_2` FOREIGN KEY (`vote_option_id`) REFERENCES `collection_votes` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

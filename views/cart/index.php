@@ -170,7 +170,7 @@
             <div class="empty-cart">
                 <h3>🛒 Seu carrinho está vazio</h3>
                 <p>✨ Adicione alguns produtos incríveis!</p>
-                <a href="index.php?action=products" class="btn btn-primary">🛍️ Ver Produtos</a>
+                <a href="index.php?action=products" style="margin-top: 1rem;" class="btn btn-primary">🛍️ Ver Produtos</a>
             </div>
         <?php endif; ?>
     </div>
@@ -233,7 +233,7 @@
     .form-row { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
     .form-group { flex: 1; display: flex; flex-direction: column; min-width: 120px; }
     .form-group label { margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary); }
-    .input-group { display: flex; gap: 0.5rem; }
+    .input-group { display: flex; gap: 0.5rem; align-items: center;}
 
     /* RESUMO DO PEDIDO (SIDEBAR) */
     .order-summary { background: var(--surface-color); border-radius: var(--border-radius-xl); padding: 2rem; border: 1px solid var(--border-color); position: sticky; top: 120px; }
@@ -253,7 +253,7 @@
     .review-item-info h4 { margin: 0 0 0.25rem; font-size: 1rem; }
     .coupon-section { margin-top: 2rem; background: var(--background-color); padding: 1.5rem; border-radius: var(--border-radius-md); }
     .coupon-section h3 { margin-bottom: 1rem; }
-    .coupon-input-group { display: flex; gap: 1rem; }
+    .coupon-input-group { display: flex; gap: 1rem; align-items: center;}
 
     /* ETAPA 3: PAGAMENTO */
     .payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }

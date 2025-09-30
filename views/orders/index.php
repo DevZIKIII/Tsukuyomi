@@ -199,7 +199,7 @@
 .data-table th,
 .data-table td {
     padding: 1.5rem;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid rgba(139, 92, 246, 0.1);
 }
 

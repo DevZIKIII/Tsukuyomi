@@ -12,9 +12,15 @@
             <label for="description">Descrição</label>
             <textarea id="description" name="description" class="form-control" rows="4"></textarea>
         </div>
-        <div class="form-group">
-            <label for="price">Preço (R$) *</label>
-            <input type="number" id="price" name="price" class="form-control" step="0.01" required>
+        <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+                <label for="price">Preço (R$) *</label>
+                <input type="number" id="price" name="price" class="form-control" step="0.01" required>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                 <label for="stock_quantity">Estoque Inicial (para cada tamanho) *</label>
+                <input type="number" id="stock_quantity" name="stock_quantity" class="form-control" required>
+            </div>
         </div>
         <div class="form-group">
             <label for="category">Categoria *</label>
@@ -27,10 +33,6 @@
                 <option value="Shorts">Shorts</option>
                 <option value="Acessórios">Acessórios</option>
             </select>
-        </div>
-        <div class="form-group">
-            <label for="stock_quantity">Estoque Inicial (para cada tamanho) *</label>
-            <input type="number" id="stock_quantity" name="stock_quantity" class="form-control" required>
         </div>
         <div class="form-group">
             <label for="image_file">Imagem do Produto *</label>

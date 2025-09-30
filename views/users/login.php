@@ -1,6 +1,6 @@
 ﻿<?php include '../views/layout/header.php'; ?>
 
-<div class="form-container">
+<div class="form-container login">
     <h2>Login</h2>
     
     <form action="/tsukuyomi/public/index.php?action=authenticate" method="POST" class="form-login">
@@ -14,8 +14,10 @@
             <input type="password" id="password" name="password" class="form-control" required>
         </div>
         
-        <button type="submit" class="btn btn-primary">Entrar</button>
-        
+        <div class="form-button">
+            <button type="submit" class="btn btn-primary">Entrar</button>
+        </div>
+
         <p style="margin-top: 1rem; text-align: center;">
             Não tem uma conta? <a href="/tsukuyomi/public/index.php?action=register">Cadastre-se</a>
         </p>

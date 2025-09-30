@@ -13,17 +13,22 @@
             <label for="description">Descrição</label>
             <textarea id="description" name="description" class="form-control" rows="4"><?php echo htmlspecialchars($product->description); ?></textarea>
         </div>
-        <div class="form-group">
-            <label for="price">Preço (R$) *</label>
-            <input type="number" id="price" name="price" class="form-control" step="0.01" value="<?php echo $product->price; ?>" required>
-        </div>
-        <div class="form-group">
-            <label for="category">Categoria *</label>
-            <select id="category" name="category" class="form-control" required>
-                <option value="Camisetas" <?php echo $product->category == 'Camisetas' ? 'selected' : ''; ?>>Camisetas</option>
-                <option value="Moletons" <?php echo $product->category == 'Moletons' ? 'selected' : ''; ?>>Moletons</option>
-                <option value="Jaquetas" <?php echo $product->category == 'Jaquetas' ? 'selected' : ''; ?>>Jaquetas</option>
-            </select>
+        <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+                <label for="price">Preço (R$) *</label>
+                <input type="number" id="price" name="price" class="form-control" step="0.01" value="<?php echo $product->price; ?>" required>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label for="category">Categoria *</label>
+                <select id="category" name="category" class="form-control" required>
+                    <option value="Camisetas" <?php echo $product->category == 'Camisetas' ? 'selected' : ''; ?>>Camisetas</option>
+                    <option value="Moletons" <?php echo $product->category == 'Moletons' ? 'selected' : ''; ?>>Moletons</option>
+                    <option value="Jaquetas" <?php echo $product->category == 'Jaquetas' ? 'selected' : ''; ?>>Jaquetas</option>
+                    <option value="Calças" <?php echo $product->category == 'Calças' ? 'selected' : ''; ?>>Calças</option>
+                    <option value="Shorts" <?php echo $product->category == 'Shorts' ? 'selected' : ''; ?>>Shorts</option>
+                    <option value="Acessórios" <?php echo $product->category == 'Acessórios' ? 'selected' : ''; ?>>Acessórios</option>
+                </select>
+            </div>
         </div>
         <div class="form-group">
             <label for="image_file">Alterar Imagem</label>
@@ -35,7 +40,7 @@
         <hr style="margin: 2rem 0; border-color: var(--border-color);">
 
         <h4>Gerenciar Estoque por Tamanho</h4>
-        <div class="stock-management-grid">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
             <?php foreach($product->variants as $variant): ?>
                 <div class="form-group">
                     <label>Estoque (<?php echo $variant['size']; ?>)</label>
@@ -48,5 +53,5 @@
         <a href="/tsukuyomi/public/index.php?action=products" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
-<style>.stock-management-grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 1rem; margin-bottom: 2rem;}</style>
+
 <?php include '../views/layout/footer.php'; ?>

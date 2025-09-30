@@ -26,7 +26,7 @@
                         <td>
                             <img src="images/products/<?php echo htmlspecialchars($option['image_url']); ?>" 
                                  alt="<?php echo htmlspecialchars($option['name']); ?>" 
-                                 class="vote-admin-thumbnail">
+                                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
                         </td>
                         <td><strong><?php echo htmlspecialchars($option['name']); ?></strong></td>
                         <td><?php echo $option['votes']; ?></td>
@@ -52,21 +52,5 @@
         </table>
     </div>
 </div>
-
-<style>
-    /* Estilos para centralizar e ajustar a tabela (mantidos) */
-    .admin-container {
-        max-width: 80%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .vote-admin-thumbnail {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 4px;
-        vertical-align: middle;
-    }
-</style>
 
 <?php include '../views/layout/footer.php'; ?>

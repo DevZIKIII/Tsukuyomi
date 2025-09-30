@@ -66,8 +66,10 @@
             </div>
         </div>
         
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;">Criar Conta</button>
-        
+        <div class="form-button">
+            <button type="submit" class="btn btn-primary">Criar Conta</button>
+        </div>
+
         <p style="margin-top: 1rem; text-align: center;">
             Já tem uma conta? <a href="index.php?action=login">Faça login</a>
         </p>

@@ -86,7 +86,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addToCartBtn.addEventListener('click', function() {
         if (!selectedSize) {
-            alert('Por favor, selecione um tamanho.');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atenção',
+                text: 'Por favor, selecione um tamanho antes de adicionar ao carrinho.',
+                confirmButtonColor: 'var(--primary-color)'
+            });
             return;
         }
 
@@ -112,7 +117,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.textContent = 'Adicionar ao Carrinho';
                 }, 2000);
             } else {
-                alert(data.message || 'Erro ao adicionar ao carrinho.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: data.message || 'Erro ao adicionar ao carrinho.',
+                    confirmButtonColor: 'var(--primary-color)'
+                });
             }
         })
         .catch(error => console.error('Erro:', error));

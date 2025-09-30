@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validação de senha
     confirmPassword.addEventListener('blur', function() {
         if (newPassword.value !== '' && this.value !== newPassword.value) {
-            alert('As senhas não coincidem!');
+            Swal.fire({ icon: 'error', title: 'Erro de Validação', text: 'As senhas não coincidem!', confirmButtonColor: 'var(--primary-color)' });
             this.focus();
         }
     });
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('form').addEventListener('submit', function(e) {
         if (newPassword.value !== '' && confirmPassword.value !== newPassword.value) {
             e.preventDefault();
-            alert('As senhas não coincidem!');
+            Swal.fire({ icon: 'error', title: 'Erro de Validação', text: 'As senhas não coincidem!', confirmButtonColor: 'var(--primary-color)' });
             confirmPassword.focus();
         }
     });

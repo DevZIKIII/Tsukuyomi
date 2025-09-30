@@ -407,7 +407,7 @@ header {
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-color-dark);
+    background-color: var(--text-secondary);
 }
 
 .btn-secondary {
@@ -417,7 +417,7 @@ header {
 }
 
 .btn-secondary:hover {
-    border-color: var(--primary-color);
+    border-color: var(--text-secondary);
 }
 
 .btn-danger {

@@ -102,14 +102,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         stateSelect.value = data.uf;
                         numberInput.focus();
                     } else {
-                        alert('CEP não encontrado.');
+                        Swal.fire({ icon: 'info', title: 'CEP não encontrado', confirmButtonColor: 'var(--primary-color)' });
                         addressInput.value = '';
                         cityInput.value = '';
                     }
                 })
                 .catch(error => {
                     console.error('Erro ao buscar CEP:', error);
-                    alert('Ocorreu um erro ao buscar o CEP.');
+                    Swal.fire({ icon: 'error', title: 'Erro', text: 'Ocorreu um erro ao buscar o CEP.', confirmButtonColor: 'var(--primary-color)' });
                 });
         });
     }

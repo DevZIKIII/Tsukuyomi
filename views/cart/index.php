@@ -25,7 +25,7 @@
                                         <button class="quantity-btn plus" onclick="changeQuantity(<?php echo $item['id']; ?>, 1, <?php echo $item['price']; ?>)">+</button>
                                     </div>
                                     <p class="item-total">Total: R$ <span id="item-total-<?php echo $item['id']; ?>"><?php echo number_format($item['price'] * $item['quantity'], 2, ',', '.'); ?></span></p>
-                                    <a href="index.php?action=remove_from_cart&id=<?php echo $item['id']; ?>" class="btn-remove" onclick="return confirm('Remover este item do carrinho?')">Remover</a>
+                                    <a href="index.php?action=remove_from_cart&id=<?php echo $item['id']; ?>" class="btn-remove" onclick="confirmRemoval(event, this.href)">Remover</a>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -300,6 +300,24 @@
             });
         }
     });
+    
+    function confirmRemoval(event, url) {
+        event.preventDefault();
+        Swal.fire({
+            title: 'Tem a certeza?',
+            text: "Deseja mesmo remover este item do carrinho?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: 'var(--primary-color)',
+            cancelButtonColor: 'var(--error-color)',
+            confirmButtonText: 'Sim, remover!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
 
     function startCheckout() {
         // CORREÇÃO: Lê a quantidade atual de cada item diretamente dos inputs na página.
@@ -331,7 +349,12 @@
 
         if (newValue < 1) newValue = 1;
         if (newValue > maxStock) {
-            alert(`Desculpe, temos apenas ${maxStock} unidades em estoque.`);
+            Swal.fire({
+                icon: 'info',
+                title: 'Estoque Limitado',
+                text: `Desculpe, temos apenas ${maxStock} unidades em estoque.`,
+                confirmButtonColor: 'var(--primary-color)'
+            });
             newValue = maxStock;
         }
 
@@ -408,10 +431,10 @@
         .then(data => {
             if (data.valid) {
                 orderData.coupon = data;
-                alert('Cupom aplicado: ' + data.description);
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Cupom aplicado!', showConfirmButton: false, timer: 3000 });
                 document.getElementById('coupon-area').innerHTML = `<p style="color: var(--success-color); text-align: center;">Cupom <b>${data.code}</b> aplicado!</p>`;
             } else {
-                alert(data.message || 'Cupom inválido.');
+                Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: data.message || 'Cupom inválido.', showConfirmButton: false, timer: 4000 });
                 orderData.coupon = null;
             }
             updateSummary();
@@ -449,14 +472,14 @@
         if (step === 2) {
             const form = document.getElementById('address-form');
             if (!form.checkValidity()) {
-                alert('Por favor, preencha todos os campos de endereço obrigatórios (*).');
+                Swal.fire({ icon: 'warning', title: 'Atenção!', text: 'Por favor, preencha todos os campos de endereço obrigatórios (*).', confirmButtonColor: 'var(--primary-color)' });
                 form.reportValidity();
                 return false;
             }
             orderData.address = Object.fromEntries(new FormData(form));
         }
         if (step === 3 && !orderData.payment.method) {
-            alert('Por favor, selecione uma forma de pagamento.');
+            Swal.fire({ icon: 'warning', title: 'Atenção!', text: 'Por favor, selecione uma forma de pagamento.', confirmButtonColor: 'var(--primary-color)' });
             return false;
         }
         return true;
@@ -474,7 +497,7 @@
 
     function searchCEP() {
         const cep = document.getElementById('cep').value.replace(/\D/g, '');
-        if (cep.length !== 8) return alert('CEP inválido.');
+        if (cep.length !== 8) return Swal.fire({ icon: 'error', title: 'CEP Inválido', text: 'Verifique o CEP digitado.', confirmButtonColor: 'var(--primary-color)' });
         fetch(`https://viacep.com.br/ws/${cep}/json/`)
         .then(res => res.json())
         .then(data => {
@@ -484,7 +507,7 @@
                 document.getElementById('city').value = data.localidade;
                 document.getElementById('state').value = data.uf;
                 document.getElementById('number').focus();
-            } else { alert('CEP não encontrado.'); }
+            } else { Swal.fire({ icon: 'info', title: 'Não encontrado', text: 'CEP não encontrado.', confirmButtonColor: 'var(--primary-color)' }); }
         });
     }
 

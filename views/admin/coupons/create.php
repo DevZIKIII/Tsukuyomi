@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     validUntil.addEventListener('change', function() {
         if (this.value <= validFrom.value) {
-            alert('A data de término deve ser posterior à data de início');
+            Swal.fire({ icon: 'warning', title: 'Data Inválida', text: 'A data de término deve ser posterior à data de início.', confirmButtonColor: 'var(--primary-color)' });
             this.value = '';
         }
     });

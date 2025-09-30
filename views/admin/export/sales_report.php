@@ -16,7 +16,6 @@
         </div>
     </div>
 
-    <!-- Estatísticas Gerais -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon">📦</div>
@@ -51,13 +50,11 @@
         </div>
     </div>
 
-    <!-- Gráfico de Vendas por Período -->
     <div class="chart-section">
         <h2>📊 Vendas por Período</h2>
         <canvas id="salesChart"></canvas>
     </div>
 
-    <!-- Top Produtos -->
     <div class="report-section">
         <h2>🏆 Top 10 Produtos Mais Vendidos</h2>
         <div class="table-container">
@@ -97,7 +94,6 @@
         </div>
     </div>
 
-    <!-- Vendas por Categoria -->
     <div class="report-section">
         <h2>📂 Vendas por Categoria</h2>
         <div class="categories-grid">
@@ -133,7 +129,6 @@
         </div>
     </div>
 
-    <!-- Top Clientes -->
     <div class="report-section">
         <h2>⭐ Top 10 Melhores Clientes</h2>
         <div class="table-container">
@@ -173,7 +168,6 @@
         </div>
     </div>
 
-    <!-- Ações de Exportação -->
     <div class="export-actions-section">
         <h3>💾 Exportar este Relatório</h3>
         <div class="export-buttons">
@@ -395,7 +389,12 @@ const salesChart = new Chart(ctx, {
 });
 
 function exportToPDF() {
-    alert('Funcionalidade de exportação para PDF será implementada em breve!');
+    Swal.fire({
+        icon: 'info',
+        title: 'Em Breve',
+        text: 'A funcionalidade de exportação para PDF será implementada em breve!',
+        confirmButtonColor: 'var(--primary-color)'
+    });
 }
 </script>
 

@@ -1,6 +1,3 @@
-<p align="center">
-  </p>
-
 # 🛒 Tsukuyomi E-commerce
 
 <p align="center">
@@ -87,4 +84,4 @@ As seguintes ferramentas e tecnologias foram utilizadas na construção do proje
 
 ### 👨‍💻 Autores
 - **Daniel José Dantas Jacometo** - [@DevZIKIII](https://github.com/DevZIKIII)
-- **João Pedro Vieira Pereira** - 
+- **João Pedro Vieira Pereira** -  [@JoaoVieiraZP](https://github.com/JoaoVieiraZP)

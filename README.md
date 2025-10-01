@@ -62,7 +62,7 @@ As seguintes ferramentas e tecnologias foram utilizadas na construção do proje
 
   1. **Clone o repositório:**
      ```bash
-     git clone [https://github.com/DevZIKIII/Tsukuyomi.git](https://github.com/DevZIKIII/Tsukuyomi.git)
+     git clone https://github.com/DevZIKIII/Tsukuyomi.git
      ```
 
   2. **Inicie o ambiente:**
